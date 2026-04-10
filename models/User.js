@@ -3,11 +3,6 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true
-  },
   age: {
     type: Number,
     required: [true, 'Age is required'],
@@ -24,10 +19,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required'],
     minlength: 6
-  },
-  healthStatus: {
-    type: String,
-    default: null
   },
   isPWD: {
     type: Boolean,

@@ -5,7 +5,7 @@ import cookieOptions from '../helpers/cookieOptions.js'
 
 // REGISTER (residents only)
 export const register = async (req, res) => {
-  const { name, age, phone, password, healthStatus, isPWD } = req.body
+  const { age, phone, password, isPWD } = req.body
 
   try {
     // Check if user already exists
@@ -16,11 +16,9 @@ export const register = async (req, res) => {
 
     // Create user (password auto-hashed via pre-save hook)
     const user = await User.create({
-      name,
       age,
       phone,
       password,
-      healthStatus,
       isPWD
     })
 
