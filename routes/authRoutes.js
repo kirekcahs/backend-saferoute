@@ -10,6 +10,6 @@ router.post('/login', login)
 router.post('/logout', protect, logout)
 router.get('/me', protect, getMe)
 router.patch('/fcm-token', protect, updateFcmToken)
-router.post('/register-admin', registerAdmin)
+router.post('/register-admin' ,registerAdmin)
 
 export default router

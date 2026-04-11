@@ -25,7 +25,7 @@ export const getNearestCenter = async (req, res) => {
       return res.status(404).json({ message: 'No active evacuation centers found' })
     }
 
-    // Calculate distance using Haversine formula
+    // Calculate distance Haversine formula
     const getDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371                          // Earth radius in km
       const dLat = (lat2 - lat1) * Math.PI / 180

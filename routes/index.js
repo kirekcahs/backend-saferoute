@@ -6,6 +6,7 @@ import floodRoutes from './floodRoutes.js'
 import evacuationRoutes from './evacuationRoutes.js'
 import locationRoutes from './locationRoutes.js'
 import weatherRoutes from './weatherRoutes.js'
+import articleRoutes from './articleRoutes.js'
 
 const router = Router()
 
@@ -16,5 +17,6 @@ router.use('/floods', floodRoutes)
 router.use('/evacuations', evacuationRoutes)
 router.use('/location', locationRoutes)
 router.use('/weather', weatherRoutes)
+router.use('/article', articleRoutes)
 
 export default router

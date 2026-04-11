@@ -3,7 +3,11 @@ import axios from 'axios'
 
 export const getWeather = async (req, res) => {
   const { latitude, longitude } = req.body
-
+  
+  if (!latitude || !longitude) {
+    return res.status(400).json({ error: "Latitude and longitude are required." });
+  }
+  
   try {
     // Call OpenWeather API from the BACKEND (hides your API key from client)
     const response = await axios.get(
@@ -26,8 +30,8 @@ export const getWeather = async (req, res) => {
       feelsLike: data.main.feels_like,
       humidity: data.main.humidity,
       weather: {
-        main: data.weather[0].main,           // e.g. "Rain"
-        description: data.weather[0].description,  // e.g. "heavy intensity rain"
+        main: data.weather[0].main,           //  "Rain"
+        description: data.weather[0].description,  // "heavy intensity rain"
         icon: data.weather[0].icon
       },
       windSpeed: data.wind.speed,

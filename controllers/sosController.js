@@ -17,14 +17,13 @@ export const sendSOS = async (req, res) => {
       longitude,
       numberOfPersons,
       condition,
-      photoUrl,
       status: 'pending'
     })
 
     // Notify all admins via FCM topic
     await sendToTopic(
       'admin_alerts',
-      '🚨 New SOS Signal',
+      'New SOS Signal',
       `A resident needs help - ${condition}`,
       {
         sosId: sos._id.toString(),
@@ -106,11 +105,11 @@ export const updateSOSStatus = async (req, res) => {
           body: 'A rescuer has been dispatched to your location'
         },
         resolved: {
-          title: '✅ SOS Resolved',
+          title: 'SOS Resolved',
           body: 'Your SOS has been resolved. Stay safe!'
         },
         cancelled: {
-          title: '❌ SOS Cancelled',
+          title: 'SOS Cancelled',
           body: 'Your SOS signal has been cancelled'
         }
       }
