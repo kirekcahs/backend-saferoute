@@ -1,4 +1,3 @@
-// models/FloodReport.js
 import mongoose from 'mongoose'
 
 const floodReportSchema = new mongoose.Schema({

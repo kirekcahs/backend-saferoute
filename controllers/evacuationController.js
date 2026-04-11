@@ -1,4 +1,3 @@
-// controllers/evacuationController.js
 import EvacuationCenter from '../models/EvacuationCenter.js'
 
 // GET ALL EVACUATION CENTERS

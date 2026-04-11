@@ -14,7 +14,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'Phone number already registered' })
     }
 
-    // Create user (password auto-hashed via pre-save hook)
+    // Create user 
     const user = await User.create({
       age,
       phone,
@@ -167,11 +167,3 @@ export const registerAdmin = async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 }
-
-// export const registerAdmin = async (req, res) => {
-//   try {
-//     res.status(201).json({ message: 'test works' })
-//   } catch (err) {
-//     res.status(500).json({ error: err.message })
-//   }
-// }

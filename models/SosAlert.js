@@ -1,4 +1,3 @@
-// models/SosAlert.js
 import mongoose from 'mongoose'
 
 const sosAlertSchema = new mongoose.Schema({

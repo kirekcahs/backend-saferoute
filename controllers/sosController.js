@@ -1,4 +1,3 @@
-// controllers/sosController.js
 import SosAlert from '../models/SosAlert.js'
 import User from '../models/User.js'
 import { sendToUser, sendToTopic } from '../helpers/fcmService.js'
@@ -101,7 +100,7 @@ export const updateSOSStatus = async (req, res) => {
     if (sos.userId.fcmToken) {
       const messages = {
         dispatched: {
-          title: '🚑 Rescuer Dispatched',
+          title: 'Rescuer Dispatched',
           body: 'A rescuer has been dispatched to your location'
         },
         resolved: {

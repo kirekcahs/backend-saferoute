@@ -1,4 +1,3 @@
-// routes/sosRoutes.js
 import { Router } from 'express'
 import protect, { adminOnly, adminOrRescuer } from '../middleware/verifyToken.js'
 import { sendSOS, getAllSOS, getSingleSOS, updateSOSStatus, getSOSByStatus } from '../controllers/sosController.js'

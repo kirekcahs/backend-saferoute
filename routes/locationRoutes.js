@@ -1,4 +1,3 @@
-// routes/locationRoutes.js
 import { Router } from 'express'
 import protect, { adminOnly } from '../middleware/verifyToken.js'
 import { updateLocation, getAllLocations, getUserLocation } from '../controllers/locationController.js'

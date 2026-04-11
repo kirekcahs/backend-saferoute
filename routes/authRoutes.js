@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 import { Router } from 'express'
 import { register, login, logout, getMe, updateFcmToken, registerAdmin } from '../controllers/authController.js'
 import protect from '../middleware/verifyToken.js'

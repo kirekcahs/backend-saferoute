@@ -1,4 +1,3 @@
-// helpers/fcmService.js
 import { messaging } from '../config/firebase.js'
 
 // Send to a single user

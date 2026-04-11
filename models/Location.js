@@ -1,4 +1,3 @@
-// models/Location.js
 import mongoose from 'mongoose'
 
 const locationSchema = new mongoose.Schema({

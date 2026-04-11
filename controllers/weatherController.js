@@ -1,4 +1,3 @@
-// controllers/weatherController.js
 import axios from 'axios'
 
 export const getWeather = async (req, res) => {
@@ -7,9 +6,9 @@ export const getWeather = async (req, res) => {
   if (!latitude || !longitude) {
     return res.status(400).json({ error: "Latitude and longitude are required." });
   }
-  
+
   try {
-    // Call OpenWeather API from the BACKEND (hides your API key from client)
+    // Call OpenWeather API
     const response = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather`, {
         params: {

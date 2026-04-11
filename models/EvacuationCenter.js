@@ -1,4 +1,3 @@
-// models/EvacuationCenter.js
 import mongoose from 'mongoose'
 
 const evacuationCenterSchema = new mongoose.Schema({

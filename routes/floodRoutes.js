@@ -1,4 +1,3 @@
-// routes/floodRoutes.js
 import { Router } from 'express'
 import protect, { adminOnly } from '../middleware/verifyToken.js'
 import { submitReport, getAllReports, getVerifiedReports, verifyReport } from '../controllers/floodController.js'

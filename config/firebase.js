@@ -8,7 +8,6 @@ const serviceAccount = JSON.parse(
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
-    // ← No databaseURL needed since you're using MongoDB
   })
 }
 

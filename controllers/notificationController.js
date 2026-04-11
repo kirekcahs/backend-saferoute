@@ -1,4 +1,3 @@
-// controllers/notificationController.js
 import Notification from '../models/Notification.js'
 import User from '../models/User.js'
 import { sendToUser, sendToTopic } from '../helpers/fcmService.js'

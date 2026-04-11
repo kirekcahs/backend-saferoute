@@ -1,4 +1,3 @@
-// routes/evacuationRoutes.js
 import { Router } from 'express'
 import protect, { adminOnly } from '../middleware/verifyToken.js'
 import { getCenters, getNearestCenter, addCenter, updateCenter } from '../controllers/evacuationController.js'

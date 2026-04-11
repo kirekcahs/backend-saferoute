@@ -15,7 +15,7 @@ export const updateLocation = async (req, res) => {
         longitude,
         updatedAt: new Date()
       },
-      { upsert: true, new: true }  // upsert = update or insert
+      { upsert: true, new: true }  // update or insert
     )
 
     res.status(200).json({

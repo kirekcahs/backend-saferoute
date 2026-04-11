@@ -1,13 +1,9 @@
-// controllers/floodController.js
 import FloodReport from '../models/FloodReport.js'
 import { sendToTopic } from '../helpers/fcmService.js'
 import { bucket } from '../config/gcs.js'
 
 // USER SUBMITS FLOOD REPORT
-export const submitReport = async (req, res) => {
-console.log('--- EMERGENCY DEBUG ---');
-  
-  // 1. SAFE DESTRUCTURING: Adding '|| {}' prevents the crash if req.body is missing
+export const submitReport = async (req, res) => {  
   const { latitude, longitude, floodDepth, description } = req.body || {};
   const userId = req.user?.userId;
 
@@ -27,7 +23,7 @@ console.log('--- EMERGENCY DEBUG ---');
     });
   }
   try {
-    // 1. Setup the file metadata for GCS
+    // Setup the file metadata for GCS
     const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
     const fileName = `reports/${Date.now()}_${safeName}`;
     const blob = bucket.file(fileName);
@@ -41,10 +37,10 @@ console.log('--- EMERGENCY DEBUG ---');
     });
 
     blobStream.on('finish', async () => {
-      // 2. The public URL for the database
+      // The public URL for the database of the image report
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
 
-      // 3. Create the database record
+      // Create the database record
       const report = await FloodReport.create({
         reportedBy: userId,
         latitude,
