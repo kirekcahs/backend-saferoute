@@ -13,6 +13,7 @@ connectDB()
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 // All routes go through /api
@@ -20,6 +21,14 @@ app.use('/api', router)
 
 app.listen(PORT, () => {
     console.log(`Saferoute server is in ${PORT}`)
+})
+
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT:', err.stack)
+})
+
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED:', err.stack)
 })
 
 export default app

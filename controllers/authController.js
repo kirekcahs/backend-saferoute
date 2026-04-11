@@ -136,3 +136,42 @@ export const updateFcmToken = async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 }
+
+export const registerAdmin = async (req, res) => {
+  const { name, email, password, department, role } = req.body
+
+  try {
+    const existing = await Admin.findOne({ email })
+    if (existing) {
+      return res.status(400).json({ message: 'Email already registered' })
+    }
+
+    const admin = await Admin.create({
+      name,
+      email,
+      password,
+      department,
+      role: role || 'admin'
+    })
+
+    res.status(201).json({
+      message: 'Admin registered successfully',
+      user: {
+        id: admin._id,
+        name: admin.name,
+        role: admin.role
+      }
+    })
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// export const registerAdmin = async (req, res) => {
+//   try {
+//     res.status(201).json({ message: 'test works' })
+//   } catch (err) {
+//     res.status(500).json({ error: err.message })
+//   }
+// }

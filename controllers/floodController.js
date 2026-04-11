@@ -1,32 +1,73 @@
 // controllers/floodController.js
 import FloodReport from '../models/FloodReport.js'
 import { sendToTopic } from '../helpers/fcmService.js'
+import { bucket } from '../config/gcs.js'
 
 // USER SUBMITS FLOOD REPORT
 export const submitReport = async (req, res) => {
-  const { latitude, longitude, floodDepth, photoUrl, description } = req.body
-  const userId = req.user.userId
+console.log('--- EMERGENCY DEBUG ---');
+  
+  // 1. SAFE DESTRUCTURING: Adding '|| {}' prevents the crash if req.body is missing
+  const { latitude, longitude, floodDepth, description } = req.body || {};
+  const userId = req.user?.userId;
 
+  // 2. DEBUG LOGS: Use 'req.body' instead of 'body'
+  console.log('--- DEBUG ---');
+  console.log('Body received:', req.body);
+  console.log('File received:', !!req.file);
+
+  // 3. VALIDATION: Check for the values we need
+  if (!latitude || !req.file) {
+    return res.status(400).json({
+      error: "Data missing from request. Ensure latitude is provided and an image is uploaded.",
+      debug: { 
+        body: req.body, 
+        file: !!req.file 
+      }
+    });
+  }
   try {
-    const report = await FloodReport.create({
-      reportedBy: userId,
-      latitude,
-      longitude,
-      floodDepth,
-      photoUrl,
-      description,
-      status: 'pending'
-    })
+    // 1. Setup the file metadata for GCS
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const fileName = `reports/${Date.now()}_${safeName}`;
+    const blob = bucket.file(fileName);
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      metadata: { contentType: req.file.mimetype },
+    });
 
-    res.status(201).json({
-      message: 'Flood report submitted — pending verification',
-      report
-    })
+    blobStream.on('error', (err) => {
+      return res.status(500).json({ error: err.message });
+    });
+
+    blobStream.on('finish', async () => {
+      // 2. The public URL for the database
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+
+      // 3. Create the database record
+      const report = await FloodReport.create({
+        reportedBy: userId,
+        latitude,
+        longitude,
+        floodDepth,
+        photoUrl: publicUrl, // Using the URL from Google
+        description,
+        status: 'pending'
+      });
+
+      res.status(201).json({
+        message: 'Flood report submitted — pending verification',
+        report
+      });
+    });
+
+    // Start the upload
+    blobStream.end(req.file.buffer);
 
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-}
+};
 
 // GET ALL FLOOD REPORTS
 export const getAllReports = async (req, res) => {
