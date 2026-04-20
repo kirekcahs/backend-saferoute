@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const notificationSchema = new mongoose.Schema({
+export const notificationSchema = new mongoose.Schema({
   sentBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',

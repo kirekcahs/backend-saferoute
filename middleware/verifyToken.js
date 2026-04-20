@@ -1,6 +1,6 @@
 import { verifyToken } from '../helpers/jwt.js'
 
-const protect = (req, res, next) => {
+export const protect = (req, res, next) => {
   // Check cookie first (web admin dashboard)
   let token = req.cookies.token
 
