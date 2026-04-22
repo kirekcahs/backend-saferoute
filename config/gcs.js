@@ -1,14 +1,12 @@
-import { Storage } from "@google-cloud/storage";
-import path from "path";
-
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICEKEY);
+import { Storage } from '@google-cloud/storage';
+import path from 'path';
 
 // Initialize Storage
 const gcs = new Storage({
-  projectId: serviceAccount.project_id,
-  credentials: serviceAccount,
+  projectId: 'saferoute-backend',
+  keyFilename: path.join(process.cwd(), 'config', 'serviceAccountKey.json'),
 });
 
-const bucket = gcs.bucket("saferoute-backend-696b0.firebasestorage.app");
+const bucket = gcs.bucket('saferoute-backend-696b0.firebasestorage.app'); 
 
 export { bucket };
