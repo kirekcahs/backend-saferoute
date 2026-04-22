@@ -79,7 +79,7 @@ export const getSingleSOS = async (req, res) => {
 
 // ADMIN UPDATES SOS STATUS (dispatched/resolved/cancelled)
 export const updateSOSStatus = async (req, res) => {
-  const { id } = req.params
+  const { id } = req.query
   const { status, rescuerId } = req.body
 
   try {
@@ -139,7 +139,7 @@ export const updateSOSStatus = async (req, res) => {
 
 // GET SOS ALERTS BY STATUS
 export const getSOSByStatus = async (req, res) => {
-  const { status } = req.params
+  const { status } = req.query
 
   try {
     const alerts = await SosAlert.find({ status })

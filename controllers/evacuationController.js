@@ -88,7 +88,7 @@ export const addCenter = async (req, res) => {
 
 // ADMIN UPDATES EVACUATION CENTER
 export const updateCenter = async (req, res) => {
-  const { id } = req.params
+  const { id } = req.query
   const updates = req.body
 
   try {

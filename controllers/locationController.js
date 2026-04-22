@@ -47,7 +47,7 @@ export const getAllLocations = async (req, res) => {
 
 // Get a specific user's last known location
 export const getUserLocation = async (req, res) => {
-  const { userId } = req.params
+  const { userId } = req.query
 
   try {
     const location = await Location.findOne({ userId })

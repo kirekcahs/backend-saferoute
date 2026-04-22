@@ -4,8 +4,8 @@ import { updateLocation, getAllLocations, getUserLocation } from '../controllers
 
 const router = Router()
 
-router.post('/update', protect, updateLocation)              // mobile app sends lat/long
+router.post('/updateLocations', protect, updateLocation)              // mobile app sends lat/long
 router.get('/all', protect, adminOnly, getAllLocations)       // admin sees all residents on map
-router.get('/:userId', protect, getUserLocation)             // get specific user's location
+router.get('/userLocation', protect, getUserLocation)             // get specific user's location
 
 export default router

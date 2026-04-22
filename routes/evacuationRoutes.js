@@ -5,8 +5,8 @@ import { getCenters, getNearestCenter, addCenter, updateCenter } from '../contro
 const router = Router()
 
 router.get('/centers', protect, getCenters)
-router.post('/nearest', protect, getNearestCenter)
-router.post('/centers', protect, adminOnly, addCenter)
-router.patch('/centers/:id', protect, adminOnly, updateCenter)
+router.post('/nearestCenter', protect, getNearestCenter)
+router.post('/addCenters', protect, adminOnly, addCenter)
+router.patch('/updateCenters', protect, adminOnly, updateCenter)
 
 export default router

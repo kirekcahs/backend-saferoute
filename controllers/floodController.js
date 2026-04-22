@@ -96,7 +96,7 @@ export const getVerifiedReports = async (req, res) => {
 
 // ADMIN VERIFIES OR REJECTS A FLOOD REPORT
 export const verifyReport = async (req, res) => {
-  const { id } = req.params
+  const { id } = req.query
   const { action } = req.body    // 'verify' or 'reject'
   const adminId = req.user.userId
 

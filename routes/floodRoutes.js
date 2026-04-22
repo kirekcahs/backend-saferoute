@@ -12,6 +12,6 @@ const upload = multer({
 router.post('/report',protect, upload.single('image'), submitReport)
 router.get('/reports', protect, getAllReports)
 router.get('/reports/verified', protect, getVerifiedReports)
-router.patch('/:id/verify', protect, adminOnly, verifyReport)
+router.patch('/verifyReports', protect, adminOnly, verifyReport)
 
 export default router
