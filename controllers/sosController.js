@@ -59,7 +59,7 @@ export const getAllSOS = async (req, res) => {
 
 // ADMIN GETS A SINGLE SOS ALERT
 export const getSingleSOS = async (req, res) => {
-  const { id } = req.params
+  const { id } = req.query
 
   try {
     const alert = await SosAlert.findById(id)
