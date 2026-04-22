@@ -1,7 +1,7 @@
 import admin from 'firebase-admin'
 import { readFileSync } from 'fs'
 
-const serviceAccount = JSON.parse()
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICEKEY)
 
 if (!admin.apps.length) {
   admin.initializeApp({
