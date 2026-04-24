@@ -7,12 +7,7 @@ export const submitReport = async (req, res) => {
   const { latitude, longitude, floodDepth, description } = req.body || {};
   const userId = req.user?.userId;
 
-  // 2. DEBUG LOGS: Use 'req.body' instead of 'body'
-  console.log('--- DEBUG ---');
-  console.log('Body received:', req.body);
-  console.log('File received:', !!req.file);
-
-  // 3. VALIDATION: Check for the values we need
+  // VALIDATION: Check for the values we need
   if (!latitude || !req.file) {
     return res.status(400).json({
       error: "Data missing from request. Ensure latitude is provided and an image is uploaded.",

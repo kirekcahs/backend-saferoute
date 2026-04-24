@@ -9,8 +9,8 @@ export const broadcastFloodAlert = async (req, res) => {
 
   // Alert level titles based on MC3 benchmarks from your paper
   const alertTitles = {
-    'alert-2': '⚠️ Alert Level 2 - Water at 12.5m',
-    'alert-3': '🚨 Alert Level 3 - Water at 13.0m',
+    'alert-2': '⚠️ Alert Level 2',
+    'alert-3': '🚨 Alert Level 3',
     'critical': '🔴 CRITICAL - Evacuate Immediately',
     'info': 'ℹ️ Flood Information'
   }

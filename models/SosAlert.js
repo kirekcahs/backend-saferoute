@@ -16,8 +16,7 @@ const sosAlertSchema = new mongoose.Schema({
   },
   numberOfPersons: {
     type: Number,
-    required: [true, 'Number of persons is required'],
-    min: [1, 'Must be at least 1']
+    default: null
   },
   condition: {
     type: String,
