@@ -72,7 +72,6 @@ export const login = async (req, res) => {
     const token = createToken({ userId: user._id, role: user.role })
 
     // Store in cookie
-    res.cookie('token', token, cookieOptions)
 
     res.status(200).json({
       message: 'Login successful',
