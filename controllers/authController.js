@@ -30,6 +30,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       message: 'Registered successfully',
+      token,
       user: {
         id: user._id,
         name: user.name,
