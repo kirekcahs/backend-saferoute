@@ -53,7 +53,7 @@ export const getAllPinned = async (req, res) => {
 
 export const createSegment = async (req, res) => {
   const { points, coords, description, floodDepth, streetName } = req.body;
-  const userId = req.user?.userId
+  const userId = req.user?.userId;
 
   // Basic validation for required fields
   if (!points || !coords) {
@@ -67,24 +67,23 @@ export const createSegment = async (req, res) => {
   }
 
   try {
-
     const newFloodReportAdmin = await FloodReportAdmin.create({
-        reportedBy: userId,
-        description,
-        floodDepth,
-        streetName
-    })
-   
+      reportedBy: userId,
+      description,
+      floodDepth,
+      streetName,
+    });
+
     const newSegment = await Segment.create({
       points,
       coords,
-      report: newFloodReportAdmin._id, 
+      report: newFloodReportAdmin._id,
     });
-     console.log(req)
+    console.log(req);
     return res.status(201).json({
       message: "Segment created successfully",
       segment: newSegment,
-      floodReport: newFloodReportAdmin
+      floodReport: newFloodReportAdmin,
     });
   } catch (err) {
     return res.status(500).json({
@@ -94,20 +93,22 @@ export const createSegment = async (req, res) => {
   }
 };
 
-export const getAllSegments = async(req, res) =>{
-  try{
-    const segments = await Segment.find({})
-    return res.status(200).json({message: "OK", segments}) 
-  }catch (err){
+export const getAllSegments = async (req, res) => {
+  try {
+    const segments = await Segment.find({});
+    return res.status(200).json({ message: "OK", segments });
+  } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
-}
+};
 
 export const deleteSingleSegment = async (req, res) => {
   const { id } = req.query;
 
   if (!id) {
-    return res.status(400).json({ message: "Segment ID is required in the query." });
+    return res
+      .status(400)
+      .json({ message: "Segment ID is required in the query." });
   }
 
   try {
@@ -125,9 +126,8 @@ export const deleteSingleSegment = async (req, res) => {
 
     return res.status(200).json({
       message: "Segment and associated flood report deleted successfully.",
-      deletedSegmentId: id
+      deletedSegmentId: id,
     });
-
   } catch (err) {
     return res.status(500).json({
       message: "Failed to delete segment.",
@@ -140,9 +140,9 @@ export const deleteAllSegments = async (req, res) => {
   try {
     // Find all segments to get their associated report IDs
     const segments = await Segment.find({});
-    
+
     // Extract report IDs, filtering out any segments that might not have a report
-    const reportIds = segments.map(seg => seg.report).filter(Boolean);
+    const reportIds = segments.map((seg) => seg.report).filter(Boolean);
 
     // Delete all associated FloodReportAdmin documents
     if (reportIds.length > 0) {
@@ -153,10 +153,10 @@ export const deleteAllSegments = async (req, res) => {
     await Segment.deleteMany({});
 
     return res.status(200).json({
-      message: "All segments and associated flood reports deleted successfully.",
-      deletedCount: segments.length
+      message:
+        "All segments and associated flood reports deleted successfully.",
+      deletedCount: segments.length,
     });
-
   } catch (err) {
     return res.status(500).json({
       message: "Failed to delete all segments.",
@@ -166,41 +166,42 @@ export const deleteAllSegments = async (req, res) => {
 };
 
 export const deleteSinglePin = async (req, res) => {
-  const { id } = req.query
-  if(!id){
-    res.status(400).json({ message: "Pin ID is required "})
+  const { id } = req.query;
+  if (!id) {
+    res.status(400).json({ message: "Pin ID is required " });
   }
-  try{
-    const pin = await Pin.findById(id)
+  try {
+    const pin = await Pin.findById(id);
 
-    if(!pin){
-      res.status(400).json("Pin is not found")
+    if (!pin) {
+      res.status(400).json("Pin is not found");
     }
 
-    await Pin.findByIdAndDelete(id)
+    await Pin.findByIdAndDelete(id);
 
     return res.status(200).json({
       message: "Pin deleted successfully.",
-      deletedPinId: id
-    })
-  }catch(err){
+      deletedPinId: id,
+    });
+  } catch (err) {
     return res.status(500).json({
       message: "Internal Server Error.",
       error: err.message,
     });
   }
-}
+};
 
 export const deleteAllPin = async (req, res) => {
-  try{
-   await Pin.deleteMany({})
+  try {
+    await Pin.deleteMany({});
 
-   return res.status(200).json({status: "OK", message:"All pin deleted successfully"})
-    
-  }catch(err){
+    return res
+      .status(200)
+      .json({ status: "OK", message: "All pin deleted successfully" });
+  } catch (err) {
     return res.status(500).json({
       message: "Failed to delete all pins.",
       error: err.message,
     });
   }
-}
+};
