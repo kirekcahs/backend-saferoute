@@ -1,46 +1,51 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const sosAlertSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: [true, 'User is required']
+const sosAlertSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User is required"],
+    },
+    coords: {
+      latitude: {
+        type: Number,
+        required: [true, "Latitude is required."],
+      },
+      longitude: {
+        type: Number,
+        required: [true, "Longitude is required."],
+      },
+    },
+    numberOfPersons: {
+      type: Number,
+      default: null,
+    },
+    condition: {
+      type: String,
+      required: [true, "Condition is required"],
+      enum: ["ankle-deep", "knee-deep", "chest-deep", "critical"],
+    },
+    photoUrl: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "dispatched", "resolved", "cancelled"],
+      default: "pending",
+    },
+    rescuerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    resolvedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  latitude: {
-    type: Number,
-    required: [true, 'Latitude is required']
-  },
-  longitude: {
-    type: Number,
-    required: [true, 'Longitude is required']
-  },
-  numberOfPersons: {
-    type: Number,
-    default: null
-  },
-  condition: {
-    type: String,
-    required: [true, 'Condition is required'],
-    enum: ['ankle-deep', 'knee-deep', 'chest-deep', 'critical']
-  },
-  photoUrl: {
-    type: String,
-    default: null
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'dispatched', 'resolved', 'cancelled'],
-    default: 'pending'
-  },
-  rescuerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
-  },
-  resolvedAt: {
-    type: Date,
-    default: null
-  }
-}, { timestamps: true })
+  { timestamps: true },
+);
 
-export default mongoose.model('SosAlert', sosAlertSchema)
+export default mongoose.model("SosAlert", sosAlertSchema);

@@ -12,8 +12,7 @@ export const sendSOS = async (req, res) => {
     // Create SOS alert in MongoDB
     const sos = await SosAlert.create({
       userId,
-      latitude,
-      longitude,
+      coords,
       numberOfPersons,
       condition,
       status: 'pending'
@@ -26,8 +25,8 @@ export const sendSOS = async (req, res) => {
       `A resident needs help - ${condition}`,
       {
         sosId: sos._id.toString(),
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
+        latitude: coords.latitude.toString(), 
+        longitude: coords.longitude.toString(),
         type: 'sos_alert'
       }
     )
