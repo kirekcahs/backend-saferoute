@@ -18,12 +18,12 @@ export const segmentSchema = new mongoose.Schema({
         }
     },
     coords: {
-        type: [Number],
+        type: [[Number]],
         required: true,
     },
     floodReport:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'FloodReport',
+        ref: 'FloodReportAdmin',
         default: null
     },
     
