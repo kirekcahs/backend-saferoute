@@ -59,15 +59,20 @@ export const createSegment = async (req, res) => {
   let { points, coords, description, floodDepth, streetName } = req.body;
   const userId = req.user?.userId;
 
-  
-  if (typeof points === 'string') {
-    try { points = JSON.parse(points) } 
-    catch { return res.status(400).json({ message: 'Invalid points format' }) }
+  if (typeof points === "string") {
+    try {
+      points = JSON.parse(points);
+    } catch {
+      return res.status(400).json({ message: "Invalid points format" });
+    }
   }
 
-  if (typeof coords === 'string') {
-    try { coords = JSON.parse(coords) } 
-    catch { return res.status(400).json({ message: 'Invalid coords format' }) }
+  if (typeof coords === "string") {
+    try {
+      coords = JSON.parse(coords);
+    } catch {
+      return res.status(400).json({ message: "Invalid coords format" });
+    }
   }
 
   // Basic validation for required fields
@@ -108,7 +113,7 @@ export const createSegment = async (req, res) => {
 
 export const getAllSegments = async (req, res) => {
   try {
-    const segments = await Segment.find({});
+    const segments = await Segment.find({}).populate('floodReport');
     return res.status(200).json({ message: "OK", segments });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
