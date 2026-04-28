@@ -44,7 +44,7 @@ export const sendSOS = async (req, res) => {
 export const getAllSOS = async (req, res) => {
   try {
     const alerts = await SosAlert.find()
-      .populate("userId", "name phone age healthStatus isPWD")
+      .populate("userId", "phone age healthStatus isPWD")
       .populate("rescuerId", "name phone")
       .sort({ createdAt: -1 }); // latest first
 
@@ -60,7 +60,7 @@ export const getSingleSOS = async (req, res) => {
 
   try {
     const alert = await SosAlert.findById(id)
-      .populate("userId", "name phone age healthStatus isPWD")
+      .populate("userId", "phone age healthStatus isPWD")
       .populate("rescuerId", "name phone");
 
     if (!alert) {
