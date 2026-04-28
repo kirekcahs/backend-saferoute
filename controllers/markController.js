@@ -56,11 +56,11 @@ export const getAllPinned = async (req, res) => {
 };
 
 export const createSegment = async (req, res) => {
-  const { points, coords, description, floodDepth, streetName } = req.body;
+  let { points, coords, description, floodDepth, streetName } = req.body;
   const userId = req.user?.userId;
 
   
-    if (typeof points === 'string') {
+  if (typeof points === 'string') {
     try { points = JSON.parse(points) } 
     catch { return res.status(400).json({ message: 'Invalid points format' }) }
   }
