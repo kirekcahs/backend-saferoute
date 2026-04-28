@@ -7,14 +7,14 @@ export const segmentSchema = new mongoose.Schema({
         validate: {
             validator: function(val) {
                 // 2 points (Start and End)
-                if (val.length !== 2) return false;
+                if (val.length !== 3) return false;
                 
                 // Both Point A and Point B must have exactly 2 numbers (lat, lon)
                 if (val[0].length !== 2 || val[1].length !== 2) return false;
                 
                 return true;
             },
-            message: 'Points must contain exactly 2 coordinates: [[lat1, lon1], [lat2, lon2]]'
+            message: 'Points must contain exactly 2 coordinates: [[lat1, lon1], [lat2, lon2],[lat2, lon2]] '
         }
     },
     coords: {
