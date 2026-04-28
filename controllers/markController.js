@@ -59,6 +59,17 @@ export const createSegment = async (req, res) => {
   const { points, coords, description, floodDepth, streetName } = req.body;
   const userId = req.user?.userId;
 
+  
+    if (typeof points === 'string') {
+    try { points = JSON.parse(points) } 
+    catch { return res.status(400).json({ message: 'Invalid points format' }) }
+  }
+
+  if (typeof coords === 'string') {
+    try { coords = JSON.parse(coords) } 
+    catch { return res.status(400).json({ message: 'Invalid coords format' }) }
+  }
+
   // Basic validation for required fields
   if (!points || !coords) {
     return res.status(400).json({ message: "Points and coords are required." });
@@ -81,13 +92,11 @@ export const createSegment = async (req, res) => {
     const newSegment = await Segment.create({
       points,
       coords,
-      report: newFloodReportAdmin._id,
+      floodReport: newFloodReportAdmin,
     });
-    console.log(req);
     return res.status(201).json({
       message: "Segment created successfully",
       segment: newSegment,
-      floodReport: newFloodReportAdmin,
     });
   } catch (err) {
     return res.status(500).json({
