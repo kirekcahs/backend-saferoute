@@ -9,7 +9,7 @@ export const createPinFlood = async (req, res) => {
   const {
     latitude,
     longitude,
-    pinName = "Flood Warning", // Fallback for Pin schema
+    pinName, // Fallback for Pin schema
     description,
   } = req.body;
 
@@ -18,6 +18,10 @@ export const createPinFlood = async (req, res) => {
     return res
       .status(400)
       .json({ message: "Latitude and longitude are required." });
+  }
+
+  if (!pinName) {
+    return res.status(400).json({ message: "Pin name is required" });
   }
 
   try {
