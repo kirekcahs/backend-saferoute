@@ -21,14 +21,14 @@ const sosAlertSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    streetName: {
+      type: String,
+      default: null,
+    },
     condition: {
       type: String,
       required: [true, "Condition is required"],
       enum: ["ankle-deep", "knee-deep", "chest-deep", "critical"],
-    },
-    photoUrl: {
-      type: String,
-      default: null,
     },
     status: {
       type: String,
