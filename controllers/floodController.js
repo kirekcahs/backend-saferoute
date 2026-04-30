@@ -9,9 +9,10 @@ export const submitReport = async (req, res) => {
     req.body || {};
   const userId = req.user?.userId;
 
-    const coords = latitude && longitude
-    ? [parseFloat(latitude), parseFloat(longitude)]
-    : null;
+  const coords =
+    latitude && longitude
+      ? [parseFloat(latitude), parseFloat(longitude)]
+      : null;
 
   // VALIDATION: Check for the values we need
   if (!coords || !req.file) {
@@ -148,5 +149,35 @@ export const verifyReport = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const deleteSingleFloodReport = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    res.status(400).json({ message: "FloodReport ID is required" });
+  }
+
+  try {
+    const floodReport = await FloodReport.findById(id);
+
+    if (!floodReport) {
+      req.status(400).json({ message: "Flood report is not found." });
+    }
+
+    await FloodReport.findByIdAndDelete(id);
+
+    return res
+      .status(200)
+      .json({
+        message: "Flood report is deleted successfully.",
+        deletedFloodReportID: id,
+      });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      error: err.message,
+    });
   }
 };
