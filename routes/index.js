@@ -11,7 +11,6 @@ import markRoutes from "./markRoutes.js";
 import userRoutes from "./userRoutes.js";
 const router = Router();
 
-
 router.use("/auth", authRoutes);
 router.use("/sos", sosRoutes);
 router.use("/user", userRoutes);
@@ -23,4 +22,4 @@ router.use("/weather", weatherRoutes);
 router.use("/article", articleRoutes);
 router.use("/mark", markRoutes);
 
-export default router
+export default router;

@@ -6,7 +6,6 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import connectDB from "./config/db.js";
 import router from "./routes/index.js";
-import { initWebSocket } from "./helpers/websocket.js";
 const PORT = process.env.PORT || 5000;
 
 const app = express();

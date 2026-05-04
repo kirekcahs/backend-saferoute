@@ -169,15 +169,21 @@ export const deleteSingleFloodReport = async (req, res) => {
     // Delete the image from GCS
     if (floodReport.photoUrl) {
       try {
-        // Extract the file path from the URL
-        // URL format: https://storage.googleapis.com/<bucket>/<fileName>
-        const fileName = floodReport.photoUrl
-          .split(`${bucket.name}/`)[1];
+        let fileName;
+        const url = floodReport.photoUrl;
 
-        await bucket.file(fileName).delete();
+        if (url.includes("firebasestorage.googleapis.com") || url.includes("firebasestorage.app")) {
+          const match = url.match(/\/o\/(.+?)\?/);
+          fileName = match ? decodeURIComponent(match[1]) : null;
+        } else {
+          fileName = url.split(`${bucket.name}/`)[1];
+        }
+
+        if (fileName) {
+          await bucket.file(fileName).delete();
+        }
       } catch (gcsErr) {
-        console.warn("GCS delete failed (file may already be gone):", gcsErr.message);
-        // Don't block the DB deletion if GCS fails
+        console.warn("GCS delete failed:", gcsErr.message);
       }
     }
 

@@ -88,7 +88,7 @@ export const notifySpecificUser = async (req, res) => {
       }
     )
 
- broadcast({ type: 'notification_sent', data: notification })
+    broadcast({ type: 'notification_sent', data: notification })
 
     res.status(200).json({
       message: 'Notification sent successfully',
