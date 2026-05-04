@@ -1,4 +1,5 @@
 import EvacuationCenter from '../models/EvacuationCenter.js'
+import { broadcast } from '../helpers/websocket.js'
 
 // GET ALL EVACUATION CENTERS
 export const getCenters = async (req, res) => {
@@ -76,6 +77,9 @@ export const addCenter = async (req, res) => {
       contactPerson, contactNumber
     })
 
+
+    broadcast({ type: 'evacuation_center_added', data: center })
+
     res.status(201).json({
       message: 'Evacuation center added',
       center
@@ -101,6 +105,8 @@ export const updateCenter = async (req, res) => {
     if (!center) {
       return res.status(404).json({ message: 'Evacuation center not found' })
     }
+
+    broadcast({ type: 'evacuation_center_updated', data: center })
 
     res.status(200).json({
       message: 'Evacuation center updated',

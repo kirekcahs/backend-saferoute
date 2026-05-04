@@ -2,10 +2,11 @@ import SosAlert from "../models/SosAlert.js";
 import User from "../models/User.js";
 import { sendToUser, sendToTopic } from "../helpers/fcmService.js";
 import Notification from "../models/Notification.js";
+import { broadcast } from "../helpers/websocket.js";
 
 // USER SENDS SOS SIGNAL
 export const sendSOS = async (req, res) => {
-  const { coords, numberOfPersons, condition } = req.body;
+  const { coords, numberOfPersons, streetName, condition } = req.body;
   const userId = req.user.userId;
 
   try {
@@ -14,6 +15,7 @@ export const sendSOS = async (req, res) => {
       userId,
       coords,
       numberOfPersons,
+      streetName,
       condition,
       status: "pending",
     });
@@ -30,6 +32,8 @@ export const sendSOS = async (req, res) => {
         type: "sos_alert",
       },
     );
+
+    broadcast({ type: "sos_alert", data: sos });
 
     res.status(201).json({
       message: "SOS signal sent successfully",
@@ -122,6 +126,11 @@ export const updateSOSStatus = async (req, res) => {
         );
       }
     }
+
+    broadcast({
+      type: "sos_status_update",
+      data: { id: sos._id, status, sos },
+    });
 
     res.status(200).json({
       message: `SOS status updated to ${status}`,

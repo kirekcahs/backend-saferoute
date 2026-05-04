@@ -1,6 +1,7 @@
 import Notification from '../models/Notification.js'
 import User from '../models/User.js'
 import { sendToUser, sendToTopic } from '../helpers/fcmService.js'
+import { broadcast } from '../helpers/websocket.js'
 
 // ADMIN BROADCASTS FLOOD ALERT TO ALL USERS
 export const broadcastFloodAlert = async (req, res) => {
@@ -37,6 +38,8 @@ export const broadcastFloodAlert = async (req, res) => {
         type: 'flood_alert'
       }
     )
+
+    broadcast({ type: 'flood_alert', data: notification })
 
     res.status(200).json({
       message: 'Flood alert broadcasted successfully',
@@ -84,6 +87,8 @@ export const notifySpecificUser = async (req, res) => {
         type
       }
     )
+
+ broadcast({ type: 'notification_sent', data: notification })
 
     res.status(200).json({
       message: 'Notification sent successfully',
@@ -134,6 +139,8 @@ export const sendAnnouncement = async (req, res) => {
         type: 'announcement'
       }
     )
+
+    broadcast({ type: 'announcement', data: notification })
 
     res.status(200).json({
       message: 'Announcement sent successfully',
