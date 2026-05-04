@@ -156,24 +156,37 @@ export const deleteSingleFloodReport = async (req, res) => {
   const { id } = req.query;
 
   if (!id) {
-    res.status(400).json({ message: "FloodReport ID is required" });
+    return res.status(400).json({ message: "FloodReport ID is required" });
   }
 
   try {
     const floodReport = await FloodReport.findById(id);
 
     if (!floodReport) {
-      req.status(400).json({ message: "Flood report is not found." });
+      return res.status(404).json({ message: "Flood report is not found." });
+    }
+
+    // Delete the image from GCS
+    if (floodReport.photoUrl) {
+      try {
+        // Extract the file path from the URL
+        // URL format: https://storage.googleapis.com/<bucket>/<fileName>
+        const fileName = floodReport.photoUrl
+          .split(`${bucket.name}/`)[1];
+
+        await bucket.file(fileName).delete();
+      } catch (gcsErr) {
+        console.warn("GCS delete failed (file may already be gone):", gcsErr.message);
+        // Don't block the DB deletion if GCS fails
+      }
     }
 
     await FloodReport.findByIdAndDelete(id);
 
-    return res
-      .status(200)
-      .json({
-        message: "Flood report is deleted successfully.",
-        deletedFloodReportID: id,
-      });
+    return res.status(200).json({
+      message: "Flood report and image deleted successfully.",
+      deletedFloodReportID: id,
+    });
   } catch (err) {
     return res.status(500).json({
       message: "Internal Server Error.",
