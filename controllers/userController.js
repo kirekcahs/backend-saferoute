@@ -1,6 +1,6 @@
-import { Users } from "@azure/cosmos";
 import Admin from "../models/Admin.js";
 import User from "../models/User.js";
+
 export const createAdminAccount = async (req, res) => {
   try {
     const { name, email, password, department, region } = req.body;
@@ -64,11 +64,11 @@ export const createAdminAccount = async (req, res) => {
   }
 };
 
-export const getAllUsers = async (req,res) => {
-    try{
-      const users = await User.find({});
-      res.status(200).json({message: "OK", users})
-    }catch(err){
-      res.status(500).json({code:500, message:"Internal Server Error"})
-    }
-}
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json({ message: "OK", users });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
