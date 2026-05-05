@@ -64,6 +64,15 @@ export const createAdminAccount = async (req, res) => {
   }
 };
 
+export const getAllAdmin = async (req, res) => {
+  try{ 
+    const admins = await Admin.find({});
+    res.json.status(200).json({message: "OK", users})
+  }catch(err){
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+}
+
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({});

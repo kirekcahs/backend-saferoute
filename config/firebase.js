@@ -1,8 +1,6 @@
 import admin from 'firebase-admin'
 import { readFileSync } from 'fs'
 
-
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -12,7 +10,6 @@ if (!admin.apps.length) {
     })
   })
 }
-
 
 export const messaging = admin.messaging()
 export default admin
