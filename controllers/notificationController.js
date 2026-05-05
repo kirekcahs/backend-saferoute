@@ -1,20 +1,20 @@
-import Notification from '../models/Notification.js'
-import User from '../models/User.js'
-import { sendToUser, sendToTopic } from '../helpers/fcmService.js'
-import { broadcast } from '../helpers/websocket.js'
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
+import { sendToUser, sendToTopic } from "../helpers/fcmService.js";
+import { broadcast } from "../helpers/websocket.js";
 
 // ADMIN BROADCASTS FLOOD ALERT TO ALL USERS
 export const broadcastFloodAlert = async (req, res) => {
-  const { title, content, severityLevel } = req.body
-  const adminId = req.user.userId
+  const { title, content, severityLevel } = req.body;
+  const adminId = req.user.userId;
 
   // Alert level titles based on MC3 benchmarks from your paper
   const alertTitles = {
-    'alert-2': '⚠️ Alert Level 2',
-    'alert-3': '🚨 Alert Level 3',
-    'critical': '🔴 CRITICAL - Evacuate Immediately',
-    'info': 'ℹ️ Flood Information'
-  }
+    "alert-2": "⚠️ Alert Level 2",
+    "alert-3": "🚨 Alert Level 3",
+    critical: "🔴 CRITICAL - Evacuate Immediately",
+    info: "ℹ️ Flood Information",
+  };
 
   try {
     // Save notification to MongoDB
@@ -23,48 +23,49 @@ export const broadcastFloodAlert = async (req, res) => {
       title: alertTitles[severityLevel] || title,
       content,
       severityLevel,
-      type: 'flood-alert',
-      targetType: 'all'
-    })
+      type: "flood-alert",
+      targetType: "all",
+    });
 
     // Broadcast to all users via FCM topic
     await sendToTopic(
-      'flood_alerts_tinajeros',
+      "flood_alerts_tinajeros",
       alertTitles[severityLevel] || title,
       content,
       {
         notificationId: notification._id.toString(),
         severityLevel,
-        type: 'flood_alert'
-      }
-    )
+        type: "flood_alert",
+      },
+    );
 
-    broadcast({ type: 'flood_alert', data: notification })
+    broadcast({ type: "flood_alert", data: notification });
 
     res.status(200).json({
-      message: 'Flood alert broadcasted successfully',
-      notification
-    })
-
+      message: "Flood alert broadcasted successfully",
+      notification,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-}
+};
 
 // ADMIN SENDS NOTIFICATION TO SPECIFIC USER
 export const notifySpecificUser = async (req, res) => {
-  const { userId, title, content, type } = req.body
-  const adminId = req.user.userId
+  const { userId, title, content, type } = req.body;
+  const adminId = req.user.userId;
 
   try {
     // Get user's FCM token
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' })
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (!user.fcmToken) {
-      return res.status(400).json({ message: 'User has no FCM token registered' })
+      return res
+        .status(400)
+        .json({ message: "User has no FCM token registered" });
     }
 
     // Save notification to MongoDB
@@ -73,81 +74,80 @@ export const notifySpecificUser = async (req, res) => {
       title,
       content,
       type,
-      targetType: 'specific',
-      targetUserId: userId
-    })
+      targetType: "specific",
+      targetUserId: userId,
+    });
 
     // Send FCM to specific user
-    await sendToUser(
-      user.fcmToken,
-      title,
-      content,
-      {
-        notificationId: notification._id.toString(),
-        type
-      }
-    )
+    await sendToUser(user.fcmToken, title, content, {
+      notificationId: notification._id.toString(),
+      type,
+    });
 
-    broadcast({ type: 'notification_sent', data: notification })
+    broadcast({ type: "notification_sent", data: notification });
 
     res.status(200).json({
-      message: 'Notification sent successfully',
-      notification
-    })
-
+      message: "Notification sent successfully",
+      notification,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-}
+};
 
 // GET ALL NOTIFICATIONS
 export const getAllNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find()
-      .populate('sentBy', 'name department')
-      .populate('targetUserId', 'name phone')
-      .sort({ createdAt: -1 })
+      .populate("sentBy", "name department")
+      .populate("targetUserId", "name phone")
+      .sort({ createdAt: -1 });
 
-    res.status(200).json({ notifications })
-
+    res.status(200).json({ notifications });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-}
+};
+
+export const getAllAnnouncement = async (req, res) => {
+  try {
+    const announcements = await Notification.find({ type: "announcement" })
+      .populate("sentBy", "name department")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ announcements });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // ADMIN SENDS ANNOUNCEMENT
 export const sendAnnouncement = async (req, res) => {
-  const { title, content } = req.body
-  const adminId = req.user.userId
+  const { title, content } = req.body;
+  const adminId = req.user.userId;
 
   try {
     const notification = await Notification.create({
       sentBy: adminId,
       title,
       content,
-      type: 'announcement',
-      severityLevel: 'info',
-      targetType: 'all'
-    })
+      type: "announcement",
+      severityLevel: "info",
+      targetType: "all",
+    });
 
-    await sendToTopic(
-      'flood_alerts_tinajeros',
-      title,
-      content,
-      {
-        notificationId: notification._id.toString(),
-        type: 'announcement'
-      }
-    )
+    await sendToTopic("flood_alerts_tinajeros", title, content, {
+      notificationId: notification._id.toString(),
+      type: "announcement",
+    });
 
-    broadcast({ type: 'announcement', data: notification })
+    broadcast({ type: "announcement", data: notification });
 
     res.status(200).json({
-      message: 'Announcement sent successfully',
-      notification
-    })
-
+      message: "Announcement sent successfully",
+      notification,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-}
+};
