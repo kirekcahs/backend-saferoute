@@ -7,7 +7,7 @@ const router = Router()
 router.post('/flood-alert', protect, adminOnly, broadcastFloodAlert)
 router.post('/notify-user', protect, adminOnly, notifySpecificUser)
 router.post('/announcement', protect, adminOnly, sendAnnouncement)
-router.get('/all/announcement', protect, adminOnly, getAllAnnouncement)
+router.get('/all/announcement', protect, getAllAnnouncement)
 router.get('/all', protect, getAllNotifications)
 
 export default router
