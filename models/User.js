@@ -35,7 +35,11 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  isSosEnabled: {          
+  type: Boolean,
+  default: true
+}
 }, { timestamps: true })
 
 userSchema.pre('save', async function () {

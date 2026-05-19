@@ -81,3 +81,24 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
 };
+
+export const toggleAllUsersSos = async (req, res) => {
+  try {
+    const anyUser = await User.findOne({ role: "user" });
+
+    if (!anyUser) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    const newValue = !anyUser.isSosEnabled;
+
+    await User.updateMany({ role: "user" }, { isSosEnabled: newValue });
+
+    res.status(200).json({
+      message: `SOS ${newValue ? "enabled" : "disabled"} for all residents`,
+      isSosEnabled: newValue,
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
