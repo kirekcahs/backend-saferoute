@@ -19,11 +19,6 @@ const adminSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: 6
   },
-  department: {
-    type: String,
-    required: [true, 'Department is required'],
-    enum: ['DRRMO', 'LGU', 'RESCUE_TEAM']
-  },
   region: {
     type: String,
     default: 'Barangay Tinajeros'
@@ -34,6 +29,7 @@ const adminSchema = new mongoose.Schema({
   },
   role: {
     type: String,
+    enum: ['admin', 'rescuer'],
     default: 'admin'
   },
   isActive: {

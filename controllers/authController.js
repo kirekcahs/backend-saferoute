@@ -136,29 +136,32 @@ export const updateFcmToken = async (req, res) => {
   }
 };
 
-export const registerAdmin = async (req, res) => {
-  const { name, email, password, department, role } = req.body;
+export const registerAdminOrRescuer = async (req, res) => {
+  const { name, email, password, role } = req.body;
 
+  const roleMessages = {
+    admin: "Admin registered successfully.",
+    rescuer: "Rescuer registered successfully.",
+  };
   try {
     const existing = await Admin.findOne({ email });
     if (existing) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    const admin = await Admin.create({
+    const user = await Admin.create({
       name,
       email,
       password,
-      department,
       role: role || "admin",
     });
-
+    
     res.status(201).json({
-      message: "Admin registered successfully",
+      message: roleMessages[role] ?? "User registered successfully.",
       user: {
-        id: admin._id,
-        name: admin.name,
-        role: admin.role,
+        id: user._id,
+        name: user.name,
+        role: user.role,
       },
     });
   } catch (err) {
