@@ -1,67 +1,37 @@
 import Admin from "../models/Admin.js";
 import User from "../models/User.js";
 
-export const createAdminAccount = async (req, res) => {
-  try {
-    const { name, email, password, department, region } = req.body;
-
-    // Validate required fields
-    if (!name || !email || !password || !department) {
-      return res.status(400).json({
-        success: false,
-        message: "Name, email, password, and department are required.",
+export const createAdminOrRescuerAccount = async (req, res) => {
+   const { name, email, password, role } = req.body;
+  
+    const roleMessages = {
+      admin: "Admin registered successfully.",
+      rescuer: "Rescuer registered successfully.",
+    };
+    try {
+      const existing = await Admin.findOne({ email });
+      if (existing) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+  
+      const user = await Admin.create({
+        name,
+        email,
+        password,
+        role: role || "admin",
       });
-    }
-
-    // Check if email already exists
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin) {
-      return res.status(409).json({
-        success: false,
-        message: "An account with this email already exists.",
+      
+      res.status(201).json({
+        message: roleMessages[role] ?? "User registered successfully.",
+        user: {
+          id: user._id,
+          name: user.name,
+          role: user.role,
+        },
       });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    // Create the admin (password hashing handled by pre-save hook)
-    const admin = await Admin.create({
-      name,
-      email,
-      password,
-      department,
-      ...(region && { region }),
-    });
-
-    // Strip password from response
-    const { password: _, ...adminData } = admin.toObject();
-
-    return res.status(201).json({
-      success: true,
-      message: "Admin account created successfully.",
-      data: adminData,
-    });
-  } catch (error) {
-    // Handle Mongoose validation errors
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((e) => e.message);
-      return res.status(400).json({
-        success: false,
-        message: messages.join(", "),
-      });
-    }
-
-    // Handle duplicate key error (race condition fallback)
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "An account with this email already exists.",
-      });
-    }
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-    });
-  }
 };
 
 export const getAllAdmin = async (req, res) => {
