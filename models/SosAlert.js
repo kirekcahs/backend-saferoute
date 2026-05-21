@@ -40,6 +40,16 @@ const sosAlertSchema = new mongoose.Schema(
       ref: "Admin",
       default: null,
     },
+    rescuerCoords: {
+      latitude: {
+        type: Number,
+        default: null,
+      },
+      longitude: {
+        type: Number,
+        default: null,
+      },
+    },
     resolvedAt: {
       type: Date,
       default: null,

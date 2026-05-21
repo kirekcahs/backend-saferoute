@@ -80,19 +80,25 @@ export const getSingleSOS = async (req, res) => {
 // ADMIN UPDATES SOS STATUS (dispatched/resolved/cancelled)
 export const updateSOSStatus = async (req, res) => {
   const { id } = req.query;
-  const { status, rescuerId } = req.body;
+  const { status, rescuerId, rescuerCoords } = req.body;
 
   try {
     const sos = await SosAlert.findById(id).populate("userId", "fcmToken name");
 
-    if (!sos) {
+    if (!sos ) {
       return res.status(404).json({ message: "SOS alert not found" });
+    }
+    if (!rescuerCoords){
+      return res.status(404).json({message: "Rescuer coordinates not found."})
     }
 
     // Update status
     sos.status = status;
     if (rescuerId) sos.rescuerId = rescuerId;
     if (status === "resolved") sos.resolvedAt = new Date();
+    if (status === "dispatched" && rescuerCoords) {
+      sos.rescuerCoords = rescuerCoords;
+    }
 
     await sos.save();
 
