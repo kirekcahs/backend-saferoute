@@ -20,6 +20,8 @@ export const sendSOS = async (req, res) => {
       status: "pending",
     });
 
+    const populatedSos = await sos.populate("userId", "phone");
+
     // Notify all admins via FCM topic
     await sendToTopic(
       "admin_alerts",
@@ -33,11 +35,11 @@ export const sendSOS = async (req, res) => {
       },
     );
 
-    broadcast({ type: "sos_alert", data: sos });
+    broadcast({ type: "sos_alert", data: populatedSos });
 
     res.status(201).json({
       message: "SOS signal sent successfully",
-      sos,
+      populatedSos,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
