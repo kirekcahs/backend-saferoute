@@ -47,7 +47,7 @@ export const sendSOS = async (req, res) => {
 // ADMIN GETS ALL SOS ALERTS
 export const getAllSOS = async (req, res) => {
   try {
-    const alerts = await SosAlert.find()
+    const alerts = await SosAlert.find({isActive: true})
       .populate("userId", "phone age healthStatus isPWD")
       .populate("rescuerId", "name phone")
       .sort({ createdAt: -1 }); // latest first
@@ -162,3 +162,21 @@ export const getSOSByStatus = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const deleteSOS = async (req, res) => {
+  const { id } = req.query
+
+  try{
+    const sos = await SosAlert.findByIdAndUpdate(id,
+      {isActive: false },
+      { returnDocument: 'after' }
+    )
+
+    if (!sos){
+      return res.status(404).json({message: "Sos alert not found."})
+    }
+    res.status(200).json({message: "Sos alert deleted", content: sos});
+  }catch(err){
+     res.status(500).json({ message: "Server error", error: err.message })
+  }
+}
