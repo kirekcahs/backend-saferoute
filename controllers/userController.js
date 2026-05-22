@@ -1,6 +1,7 @@
 import Admin from "../models/Admin.js";
 import User from "../models/User.js";
 import { broadcast } from "../helpers/websocket.js";
+import { sendToUser, sendToTopic } from "../helpers/fcmService.js";
 
 export const createAdminOrRescuerAccount = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -70,6 +71,14 @@ export const toggleAllUsersSos = async (req, res) => {
       isSosEnabled: newValue,
       message: `SOS ${newValue ? "enabled" : "disabled"} for all residents`,
     });
+
+    // Notify all users subscribed to the "users" topic via FCM
+    await sendToTopic(
+      "users",
+      `SOS ${newValue ? "Enabled" : "Disabled"}`,
+      `SOS has been ${newValue ? "enabled" : "disabled"} for all residents.`,
+      { isSosEnabled: String(newValue), type: "sos_toggle" }
+    );
 
     res.status(200).json({
       message: `SOS ${newValue ? "enabled" : "disabled"} for all residents`,
