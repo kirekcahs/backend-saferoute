@@ -1,6 +1,6 @@
 import Admin from "../models/Admin.js";
 import User from "../models/User.js";
-import { broadcast } from "./helpers/websocket.js";
+import { broadcast } from "../helpers/websocket.js";
 
 export const createAdminOrRescuerAccount = async (req, res) => {
   const { name, email, password, role } = req.body;
