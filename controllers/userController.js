@@ -1,47 +1,48 @@
 import Admin from "../models/Admin.js";
 import User from "../models/User.js";
+import { broadcast } from "./helpers/websocket.js";
 
 export const createAdminOrRescuerAccount = async (req, res) => {
-   const { name, email, password, role } = req.body;
-  
-    const roleMessages = {
-      admin: "Admin registered successfully.",
-      rescuer: "Rescuer registered successfully.",
-    };
-    try {
-      const existing = await Admin.findOne({ email });
-      if (existing) {
-        return res.status(400).json({ message: "Email already registered" });
-      }
-  
-      const user = await Admin.create({
-        name,
-        email,
-        password,
-        role: role || "admin",
-      });
-      
-      res.status(201).json({
-        message: roleMessages[role] ?? "User registered successfully.",
-        user: {
-          id: user._id,
-          name: user.name,
-          role: user.role,
-        },
-      });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  const { name, email, password, role } = req.body;
+
+  const roleMessages = {
+    admin: "Admin registered successfully.",
+    rescuer: "Rescuer registered successfully.",
+  };
+  try {
+    const existing = await Admin.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already registered" });
     }
+
+    const user = await Admin.create({
+      name,
+      email,
+      password,
+      role: role || "admin",
+    });
+
+    res.status(201).json({
+      message: roleMessages[role] ?? "User registered successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 export const getAllAdmin = async (req, res) => {
-  try{ 
+  try {
     const admins = await Admin.find({});
-    res.status(200).json({message: "OK", admins})
-  }catch(err){
+    res.status(200).json({ message: "OK", admins });
+  } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
-}
+};
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -63,6 +64,12 @@ export const toggleAllUsersSos = async (req, res) => {
     const newValue = !anyUser.isSosEnabled;
 
     await User.updateMany({ role: "user" }, { isSosEnabled: newValue });
+
+    broadcast({
+      type: "sos_toggle",
+      isSosEnabled: newValue,
+      message: `SOS ${newValue ? "enabled" : "disabled"} for all residents`,
+    });
 
     res.status(200).json({
       message: `SOS ${newValue ? "enabled" : "disabled"} for all residents`,
