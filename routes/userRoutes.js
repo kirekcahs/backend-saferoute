@@ -3,6 +3,7 @@ import {
   createAdminOrRescuerAccount,
   getAllAdmin,
   getAllUsers,
+  getSosAvailability,
   toggleAllUsersSos,
 } from "../controllers/userController.js";
 import protect, { adminOnly } from "../middleware/verifyToken.js";
@@ -14,5 +15,6 @@ router.post("/createAdminAccount", protect, adminOnly, createAdminOrRescuerAccou
 router.get("/all", protect, adminOnly, getAllUsers);
 router.get("/all/admin", protect, adminOnly, getAllAdmin)
 router.patch("/toggleSOS", protect , adminOnly, toggleAllUsersSos)
+router.get("/all/getSosAvailability", protect, getSosAvailability)
 
 export default router;

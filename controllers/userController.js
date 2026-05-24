@@ -88,3 +88,23 @@ export const toggleAllUsersSos = async (req, res) => {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
 };
+
+
+export const getSosAvailability = async (req, res) => {
+  try {
+    const total = await User.countDocuments({ role: "user" });
+
+    if (total === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    const enabledCount = await User.countDocuments({ role: "user", isSosEnabled: true });
+
+    // true only if ALL users have it enabled
+    const isSosEnabled = enabledCount === total;
+
+    res.status(200).json({ isSosEnabled });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
