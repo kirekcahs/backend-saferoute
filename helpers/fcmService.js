@@ -7,7 +7,7 @@ export const sendToUser = async (fcmToken, title, body, data = {}) => {
     notification: { title, body },
     data,
     android: {
-      priority: 'high',
+      priority: 'HIGH',
       notification: {
         sound: 'default',
         channelId: 'flood_alerts'
@@ -31,7 +31,7 @@ export const sendToTopic = async (topic, title, body, data = {}) => {
     notification: { title, body },
     data,
     android: {
-      priority: 'high',
+      priority: 'HIGH',
       notification: {
         sound: 'default',
         channelId: 'flood_alerts'
@@ -54,7 +54,7 @@ export const sendToMultiple = async (fcmTokens, title, body, data = {}) => {
     tokens: fcmTokens,
     notification: { title, body },
     data,
-    android: { priority: 'high' }
+    android: { priority: 'HIGH' }
   }
 
   try {
