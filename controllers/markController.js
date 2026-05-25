@@ -3,6 +3,10 @@ import FloodReport from "../models/FloodReport.js";
 import Segment from "../models/Segment.js";
 import FloodReportAdmin from "../models/FloodReportAdmin.js";
 import { messaging } from "../config/firebase.js";
+import { broadcast } from "../helpers/websocket.js";
+import { sendToTopic } from "../helpers/fcmService.js";
+
+const FLOOD_TOPIC = "flood_alerts_tinajeros";
 
 export const createPinFlood = async (req, res) => {
   // Destructure all required fields for both Pin and FloodReport
@@ -31,6 +35,15 @@ export const createPinFlood = async (req, res) => {
       pinName,
       description,
     });
+
+    const title = "🚨 Flood Alert";
+    const body = `A flood has been reported near ${pinName}.`;
+
+    await sendToTopic(FLOOD_TOPIC, title, body, {
+      type: "flood_pin",
+      pinId: pin._id.toString(),
+    });
+    broadcast({ type: "flood_pin", data: pin });
 
     // Return a success response with both created documents
     return res.status(201).json({
@@ -99,6 +112,15 @@ export const createSegment = async (req, res) => {
       coords,
       floodReport: newFloodReportAdmin,
     });
+
+    const title = "🚨 Flood Segment Reported";
+    const body = `New flooded road: ${streetName ?? "unknown street"} — depth: ${floodDepth ?? "unknown"}.`;
+    await sendToTopic(FLOOD_TOPIC, title, body, {
+      type: "flood_segment",
+      segmentId: newSegment._id.toString(),
+    });
+    broadcast({ type: "flood_segment", data: newSegment });
+
     return res.status(201).json({
       message: "Segment created successfully",
       segment: newSegment,
@@ -113,7 +135,7 @@ export const createSegment = async (req, res) => {
 
 export const getAllSegments = async (req, res) => {
   try {
-    const segments = await Segment.find({}).populate('floodReport');
+    const segments = await Segment.find({}).populate("floodReport");
     return res.status(200).json({ message: "OK", segments });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
