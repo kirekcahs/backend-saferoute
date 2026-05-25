@@ -164,6 +164,8 @@ export const deleteSingleSegment = async (req, res) => {
 
     await Segment.findByIdAndDelete(id);
 
+    broadcast({ type: "delete_segment", data: { deletedSegmentId: id } });
+
     return res.status(200).json({
       message: "Segment and associated flood report deleted successfully.",
       deletedSegmentId: id,
@@ -218,6 +220,8 @@ export const deleteSinglePin = async (req, res) => {
     }
 
     await Pin.findByIdAndDelete(id);
+
+    broadcast({ type: "delete_pin", data: { deletedPinId: id } });
 
     return res.status(200).json({
       message: "Pin deleted successfully.",
