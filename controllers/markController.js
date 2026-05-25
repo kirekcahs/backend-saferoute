@@ -36,8 +36,8 @@ export const createPinFlood = async (req, res) => {
       description,
     });
 
-    const title = "🚨 Flood Alert";
-    const body = `A flood has been reported near ${pinName}.`;
+    const title = "New Marked Location!";
+    const body = `A new pinned location has been reported.`;
 
     await sendToTopic(FLOOD_TOPIC, title, body, {
       type: "flood_pin",
@@ -113,7 +113,7 @@ export const createSegment = async (req, res) => {
       floodReport: newFloodReportAdmin,
     });
 
-    const title = "🚨 Flood Segment Reported";
+    const title = "Flooded Street Reported";
     const body = `New flooded road: ${streetName ?? "unknown street"} — depth: ${floodDepth ?? "unknown"}.`;
     await sendToTopic(FLOOD_TOPIC, title, body, {
       type: "flood_segment",
