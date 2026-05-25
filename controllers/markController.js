@@ -6,7 +6,7 @@ import { messaging } from "../config/firebase.js";
 import { broadcast } from "../helpers/websocket.js";
 import { sendToTopic } from "../helpers/fcmService.js";
 
-const FLOOD_TOPIC = "flood_alerts_tinajeros";
+const FLOOD_TOPIC = "flood_alerts";
 
 export const createPinFlood = async (req, res) => {
   // Destructure all required fields for both Pin and FloodReport
