@@ -188,3 +188,23 @@ export const deleteSOS = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+export const getSOSbyId = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ message: "SOS ID is required." });
+  }
+
+  try {
+    const sos = await SosAlert.findOne({ _id: id, isActive: true });
+
+    if (!sos) {
+      return res.status(404).json({ message: "SOS alert not found or is no longer active." });
+    }
+
+    return res.status(200).json({ message: "OK", sos });
+  } catch (err) {
+    return res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
