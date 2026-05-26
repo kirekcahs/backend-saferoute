@@ -98,6 +98,7 @@ export const updateSOSStatus = async (req, res) => {
     sos.status = status;
     if (rescuerId) sos.rescuerId = rescuerId;
     if (status === "resolved") sos.resolvedAt = new Date();
+    if (status === "responded") sos.respondedAt = new Date();
     if (status === "dispatched" && rescuerCoords) {
       sos.rescuerCoords = rescuerCoords;
     }

@@ -32,7 +32,7 @@ const sosAlertSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "dispatched", "resolved", "cancelled"],
+      enum: ["pending", "dispatched", "responded", "resolved", "cancelled"],
       default: "pending",
     },
     rescuerId: {
@@ -49,6 +49,10 @@ const sosAlertSchema = new mongoose.Schema(
         type: Number,
         default: null,
       },
+    },
+    respondedAt: {
+      type: Date,
+      default: null, 
     },
     resolvedAt: {
       type: Date,
