@@ -17,6 +17,6 @@ router.get("/all", protect, adminOnly, getAllUsers);
 router.get("/all/admin", protect, adminOnly, getAllAdmin)
 router.patch("/toggleSOS", protect , adminOnly, toggleAllUsersSos)
 router.get("/all/getSosAvailability", protect, getSosAvailability)
-router.patch("/fcmToken", protect, adminOnly, updateFcmToken)
+router.patch("/fcmToken", protect, updateFcmToken)
 
 export default router;
