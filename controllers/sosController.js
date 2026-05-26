@@ -109,19 +109,19 @@ export const updateSOSStatus = async (req, res) => {
 if (sos.userId?.fcmToken) {
       const messages = {
         dispatched: {
-          title: "Rescuer On The Way",
+          title: "Rescuer on the way",
           body: "A rescuer has been dispatched to your location.",
         },
         responded: {
-          title: "Rescuer Arrived",
+          title: "Rescuer arrived",
           body: "The rescuer has arrived at your location.",
         },
         resolved: {
-          title: "SOS Resolved",
+          title: "SOS resolved",
           body: "Your SOS has been resolved. Stay safe!",
         },
         cancelled: {
-          title: "SOS Cancelled",
+          title: "SOS cancelled",
           body: "Your SOS signal has been cancelled.",
         },
       };
