@@ -21,5 +21,5 @@ router.get("/alerts/status", protect, adminOrRescuer, getSOSByStatus);
 router.get("/singleSOS", protect, adminOrRescuer, getSingleSOS);
 router.patch("/updateStatus", protect, adminOrRescuer, updateSOSStatus);
 router.patch("/deleteSOS", protect, adminOnly, deleteSOS);
-router.get("/getSOSbyId", protect, adminOnly, getSOSbyId);
+router.get("/getSOSbyId", protect, getSOSbyId);
 export default router;
