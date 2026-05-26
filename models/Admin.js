@@ -32,6 +32,13 @@ const adminSchema = new mongoose.Schema({
     enum: ['admin', 'rescuer'],
     default: 'admin'
   },
+respondedTo: {
+  type: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SosAlert",
+  }],
+  default: []
+},
   isActive: {
     type: Boolean,
     default: true

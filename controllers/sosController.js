@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { sendToUser, sendToTopic } from "../helpers/fcmService.js";
 import Notification from "../models/Notification.js";
 import { broadcast } from "../helpers/websocket.js";
+import Admin from "../models/Admin.js";
 
 // USER SENDS SOS SIGNAL
 export const sendSOS = async (req, res) => {
@@ -106,7 +107,13 @@ export const updateSOSStatus = async (req, res) => {
 
     await sos.save();
 
-if (sos.userId?.fcmToken) {
+    if (status === "dispatched" && rescuerId) {
+      await Admin.findByIdAndUpdate(rescuerId, {
+        $addToSet: { respondedTo: sos._id }, // addToSet prevents duplicates
+      });
+    }
+
+    if (sos.userId?.fcmToken) {
       const messages = {
         dispatched: {
           title: "Rescuer on the way",
@@ -200,11 +207,15 @@ export const getSOSbyId = async (req, res) => {
     const sos = await SosAlert.findOne({ _id: id, isActive: true });
 
     if (!sos) {
-      return res.status(404).json({ message: "SOS alert not found or is no longer active." });
+      return res
+        .status(404)
+        .json({ message: "SOS alert not found or is no longer active." });
     }
 
     return res.status(200).json({ message: "OK", sos });
   } catch (err) {
-    return res.status(500).json({ code: 500, message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ code: 500, message: "Internal Server Error" });
   }
 };
