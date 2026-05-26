@@ -34,7 +34,6 @@ export const sendSOS = async (req, res) => {
         type: "sos_alert",
       },
     );
-
     broadcast({ type: "sos_alert", data: populatedSos });
 
     res.status(201).json({
@@ -49,7 +48,7 @@ export const sendSOS = async (req, res) => {
 // ADMIN GETS ALL SOS ALERTS
 export const getAllSOS = async (req, res) => {
   try {
-    const alerts = await SosAlert.find({isActive: true})
+    const alerts = await SosAlert.find({ isActive: true })
       .populate("userId", "phone age healthStatus isPWD")
       .populate("rescuerId", "name phone")
       .sort({ createdAt: -1 }); // latest first
@@ -87,11 +86,13 @@ export const updateSOSStatus = async (req, res) => {
   try {
     const sos = await SosAlert.findById(id).populate("userId", "fcmToken name");
 
-    if (!sos ) {
+    if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
     }
-    if (!rescuerCoords){
-      return res.status(404).json({message: "Rescuer coordinates not found."})
+    if (!rescuerCoords) {
+      return res
+        .status(404)
+        .json({ message: "Rescuer coordinates not found." });
     }
 
     // Update status
@@ -167,19 +168,20 @@ export const getSOSByStatus = async (req, res) => {
 };
 
 export const deleteSOS = async (req, res) => {
-  const { id } = req.query
+  const { id } = req.query;
 
-  try{
-    const sos = await SosAlert.findByIdAndUpdate(id,
-      {isActive: false },
-      { returnDocument: 'after' }
-    )
+  try {
+    const sos = await SosAlert.findByIdAndUpdate(
+      id,
+      { isActive: false },
+      { returnDocument: "after" },
+    );
 
-    if (!sos){
-      return res.status(404).json({message: "Sos alert not found."})
+    if (!sos) {
+      return res.status(404).json({ message: "Sos alert not found." });
     }
-    res.status(200).json({message: "Sos alert deleted", content: sos});
-  }catch(err){
-     res.status(500).json({ message: "Server error", error: err.message })
+    res.status(200).json({ message: "Sos alert deleted", content: sos });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
-}
+};

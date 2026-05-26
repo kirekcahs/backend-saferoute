@@ -108,3 +108,19 @@ export const getSosAvailability = async (req, res) => {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
 };
+
+export const updateFcmToken = async (req, res) => {
+  const { fcmToken } = req.body;
+  const userId = req.user?.userId;
+
+  if (!fcmToken) {
+    return res.status(400).json({ message: "FCM token is required" });
+  }
+
+  try {
+    await User.findByIdAndUpdate(userId, { fcmToken });
+    return res.status(200).json({ message: "FCM token updated" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to update FCM token", error: err.message });
+  }
+};
