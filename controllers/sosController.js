@@ -106,36 +106,39 @@ export const updateSOSStatus = async (req, res) => {
 
     await sos.save();
 
-    // Notify resident based on status
-    // if (sos.userId.fcmToken) {
-    //   const messages = {
-    //     dispatched: {
-    //       title: "Rescuer Dispatched",
-    //       body: "A rescuer has been dispatched to your location",
-    //     },
-    //     resolved: {
-    //       title: "SOS Resolved",
-    //       body: "Your SOS has been resolved. Stay safe!",
-    //     },
-    //     cancelled: {
-    //       title: "SOS Cancelled",
-    //       body: "Your SOS signal has been cancelled",
-    //     },
-    //   };
+if (sos.userId?.fcmToken) {
+      const messages = {
+        dispatched: {
+          title: "Rescuer On The Way",
+          body: "A rescuer has been dispatched to your location.",
+        },
+        responded: {
+          title: "Rescuer Arrived",
+          body: "The rescuer has arrived at your location.",
+        },
+        resolved: {
+          title: "SOS Resolved",
+          body: "Your SOS has been resolved. Stay safe!",
+        },
+        cancelled: {
+          title: "SOS Cancelled",
+          body: "Your SOS signal has been cancelled.",
+        },
+      };
 
-    //   if (messages[status]) {
-    //     await sendToUser(
-    //       sos.userId.fcmToken,
-    //       messages[status].title,
-    //       messages[status].body,
-    //       {
-    //         sosId: sos._id.toString(),
-    //         status,
-    //         type: "sos_status_update",
-    //       },
-    //     );
-    //   }
-    // }
+      if (messages[status]) {
+        await sendToUser(
+          sos.userId.fcmToken,
+          messages[status].title,
+          messages[status].body,
+          {
+            sosId: sos._id.toString(),
+            status,
+            type: "sos_status_update",
+          },
+        );
+      }
+    }
 
     broadcast({
       type: "sos_status_update",
