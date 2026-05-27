@@ -82,7 +82,7 @@ export const getSingleSOS = async (req, res) => {
 // ADMIN UPDATES SOS STATUS (dispatched/resolved/cancelled)
 export const updateSOSStatus = async (req, res) => {
   const { id } = req.query;
-  const { status, rescuerId, rescuerCoords } = req.body;
+  const { status, rescuerId, rescuerCoords, coords } = req.body;
 
   try {
     const sos = await SosAlert.findById(id).populate("userId", "fcmToken name");
@@ -90,19 +90,30 @@ export const updateSOSStatus = async (req, res) => {
     if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
     }
-    if (!rescuerCoords) {
+    
+    // Only demand rescuerCoords if the status is "dispatched"
+    if (status === "dispatched" && !rescuerCoords) {
       return res
-        .status(404)
-        .json({ message: "Rescuer coordinates not found." });
+        .status(400)
+        .json({ message: "Rescuer coordinates are required when dispatching." });
     }
 
-    // Update status
+    // Update status and rescuer ID
     sos.status = status;
     if (rescuerId) sos.rescuerId = rescuerId;
+    
+    // Update timestamps
     if (status === "resolved") sos.resolvedAt = new Date();
     if (status === "responded") sos.respondedAt = new Date();
+    
+    // Update coordinates based on status
     if (status === "dispatched" && rescuerCoords) {
       sos.rescuerCoords = rescuerCoords;
+    }
+    
+    // Update the main coords when status is "responded"
+    if (status === "responded" && coords) {
+      sos.coords = coords;
     }
 
     await sos.save();
