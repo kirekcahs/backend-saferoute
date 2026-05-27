@@ -120,7 +120,7 @@ export const updateSOSStatus = async (req, res) => {
 
     if (status === "dispatched" && rescuerId) {
       await Admin.findByIdAndUpdate(rescuerId, {
-        $addToSet: { respondedTo: sos._id }, // addToSet prevents duplicates
+        $addToSet: { respondedTo: sos.toObject() }, // addToSet prevents duplicates
       });
     }
 

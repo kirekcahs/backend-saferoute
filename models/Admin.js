@@ -33,10 +33,7 @@ const adminSchema = new mongoose.Schema({
     default: 'admin'
   },
 respondedTo: {
-  type: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SosAlert",
-  }],
+  type: [mongoose.Schema.Types.Mixed],
   default: []
 },
   isActive: {
