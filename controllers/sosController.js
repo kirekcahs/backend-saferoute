@@ -85,32 +85,34 @@ export const updateSOSStatus = async (req, res) => {
   const { status, rescuerId, rescuerCoords, coords } = req.body;
 
   try {
-    const sos = await SosAlert.findById(id).populate("userId", "phone fcmToken name");
+    const sos = await SosAlert.findById(id).populate("userId", "fcmToken phone");
 
     if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
     }
-    
+
     // Only demand rescuerCoords if the status is "dispatched"
     if (status === "dispatched" && !rescuerCoords) {
       return res
         .status(400)
-        .json({ message: "Rescuer coordinates are required when dispatching." });
+        .json({
+          message: "Rescuer coordinates are required when dispatching.",
+        });
     }
 
     // Update status and rescuer ID
     sos.status = status;
     if (rescuerId) sos.rescuerId = rescuerId;
-    
+
     // Update timestamps
     if (status === "resolved") sos.resolvedAt = new Date();
     if (status === "responded") sos.respondedAt = new Date();
-    
+
     // Update coordinates based on status
     if (status === "dispatched" && rescuerCoords) {
       sos.rescuerCoords = rescuerCoords;
     }
-    
+
     // Update the main coords when status is "responded"
     if (status === "responded" && coords) {
       sos.coords = coords;
@@ -120,7 +122,7 @@ export const updateSOSStatus = async (req, res) => {
 
     if (status === "dispatched" && rescuerId) {
       await Admin.findByIdAndUpdate(rescuerId, {
-        $addToSet: { respondedTo: sos.toObject() }, // addToSet prevents duplicates
+        $addToSet: { respondedTo: sos._id }, // addToSet prevents duplicates
       });
     }
 
