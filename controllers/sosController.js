@@ -85,7 +85,7 @@ export const updateSOSStatus = async (req, res) => {
   const { status, rescuerId, rescuerCoords, coords } = req.body;
 
   try {
-    const sos = await SosAlert.findById(id).populate("userId", "phone", "fcmToken name");
+    const sos = await SosAlert.findById(id).populate("userId", "fcmToken phone name");
 
     if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
