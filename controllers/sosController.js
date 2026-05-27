@@ -85,7 +85,10 @@ export const updateSOSStatus = async (req, res) => {
   const { status, rescuerId, rescuerCoords, coords } = req.body;
 
   try {
-    const sos = await SosAlert.findById(id).populate("userId", "fcmToken phone");
+    const sos = await SosAlert.findById(id).populate(
+      "userId",
+      "fcmToken phone",
+    );
 
     if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
@@ -93,11 +96,9 @@ export const updateSOSStatus = async (req, res) => {
 
     // Only demand rescuerCoords if the status is "dispatched"
     if (status === "dispatched" && !rescuerCoords) {
-      return res
-        .status(400)
-        .json({
-          message: "Rescuer coordinates are required when dispatching.",
-        });
+      return res.status(400).json({
+        message: "Rescuer coordinates are required when dispatching.",
+      });
     }
 
     // Update status and rescuer ID
@@ -203,6 +204,11 @@ export const deleteSOS = async (req, res) => {
     if (!sos) {
       return res.status(404).json({ message: "Sos alert not found." });
     }
+
+    await Admin.updateMany(
+      { respondedTo: sos._id },
+      { $pull: { respondedTo: sos._id } },
+    );
     res.status(200).json({ message: "Sos alert deleted", content: sos });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
