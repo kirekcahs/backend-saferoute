@@ -34,7 +34,7 @@ export const deleteSingleArticle = async (req, res) => {
   const { id } = req.query;
 
   try {
-    const article = Article.findByIdAndDelete(id);
+    const article = await Article.findByIdAndDelete(id);
 
     if (!article) {
       return res
@@ -51,7 +51,7 @@ export const deleteSingleArticle = async (req, res) => {
 
 export const deleteAllArticle = async (req, res) => {
   try {
-    const articles = Article.deleteMany({});
+    const articles = await Article.deleteMany({});
     return res
       .status(200)
       .json({ code: 200, message: "Successfully deleted all articles." });
