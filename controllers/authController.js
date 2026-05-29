@@ -124,7 +124,7 @@ export const updateFcmToken = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.userId,
       { fcmToken },
-      { new: true },
+      { returnDocument: 'after' },
     ).select("-password");
 
     res.status(200).json({

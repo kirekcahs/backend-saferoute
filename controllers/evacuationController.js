@@ -114,7 +114,7 @@ export const updateCenter = async (req, res) => {
 
   try {
     const center = await EvacuationCenter.findByIdAndUpdate(id, updates, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 

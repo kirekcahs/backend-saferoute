@@ -16,7 +16,7 @@ export const updateLocation = async (req, res) => {
         longitude,
         updatedAt: new Date(),
       },
-      { upsert: true, new: true }, // update or insert
+      { upsert: true, returnDocument: 'after' }, // update or insert
     );
 
     broadcast({
