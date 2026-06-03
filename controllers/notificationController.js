@@ -111,11 +111,32 @@ export const getAllNotifications = async (req, res) => {
 
 export const getAllAnnouncement = async (req, res) => {
   try {
-    const announcements = await Notification.find({ type: "announcement" })
-      .populate("sentBy", "name department")
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json({ announcements });
+    const [announcements, totalAnnouncements] = await Promise.all([
+      Notification.find({ type: "announcement" })
+        .populate("sentBy", "name department")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Notification.countDocuments({ type: "announcement" }),
+    ]);
+
+    const totalPages = Math.ceil(totalAnnouncements / limit);
+
+    res.status(200).json({
+      pagination: {
+        totalAnnouncements,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      announcements,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

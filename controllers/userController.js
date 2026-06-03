@@ -38,8 +38,29 @@ export const createAdminOrRescuerAccount = async (req, res) => {
 
 export const getAllAdmin = async (req, res) => {
   try {
-    const admins = await Admin.find({});
-    res.status(200).json({ message: "OK", admins });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
+
+    const [admins, totalAdmins] = await Promise.all([
+      Admin.find({}).skip(skip).limit(limit),
+      Admin.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalAdmins / limit);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalAdmins,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      admins,
+    });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
@@ -47,8 +68,29 @@ export const getAllAdmin = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
-    res.status(200).json({ message: "OK", users });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
+
+    const [users, totalUsers] = await Promise.all([
+      User.find({}).skip(skip).limit(limit),
+      User.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalUsers,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      users,
+    });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }

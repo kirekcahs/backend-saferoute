@@ -49,12 +49,56 @@ export const sendSOS = async (req, res) => {
 // ADMIN GETS ALL SOS ALERTS
 export const getAllSOS = async (req, res) => {
   try {
-    const alerts = await SosAlert.find({ isActive: true })
-      .populate("userId", "phone age healthStatus isPWD")
-      .populate("rescuerId", "name phone")
-      .sort({ createdAt: -1 }); // latest first
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json({ alerts });
+    const [result] = await SosAlert.aggregate([
+      { $match: { isActive: true } },
+      {
+        $addFields: {
+          statusOrder: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$status", "pending"] }, then: 1 },
+                { case: { $eq: ["$status", "dispatched"] }, then: 2 },
+                { case: { $eq: ["$status", "responded"] }, then: 3 },
+                { case: { $eq: ["$status", "resolved"] }, then: 4 },
+              ],
+              default: 99,
+            },
+          },
+        },
+      },
+      { $sort: { statusOrder: 1, createdAt: -1 } },
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          alerts: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+    ]);
+
+    const totalAlerts = result.total[0]?.count || 0;
+    const totalPages = Math.ceil(totalAlerts / limit);
+
+    // Re-populate after aggregation
+    const alerts = await SosAlert.populate(result.alerts, [
+      { path: "userId", select: "phone age healthStatus isPWD" },
+      { path: "rescuerId", select: "name phone" },
+    ]);
+
+    res.status(200).json({
+      pagination: {
+        totalAlerts,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      alerts,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

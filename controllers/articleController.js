@@ -2,8 +2,29 @@ import Article from "../models/Article.js";
 
 export const getAllArticles = async (req, res) => {
   try {
-    const articles = await Article.find({});
-    res.status(200).json({ message: "OK", articles });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const [articles, totalArticles] = await Promise.all([
+      Article.find({}).skip(skip).limit(limit),
+      Article.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalArticles / limit);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalArticles,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      articles,
+    });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }

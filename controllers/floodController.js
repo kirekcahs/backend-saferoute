@@ -73,12 +73,33 @@ export const submitReport = async (req, res) => {
 // GET ALL FLOOD REPORTS
 export const getAllReports = async (req, res) => {
   try {
-    const reports = await FloodReport.find()
-      .populate("reportedBy", "name phone")
-      .populate("verifiedBy", "name department")
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json({ reports });
+    const [reports, totalReports] = await Promise.all([
+      FloodReport.find()
+        .populate("reportedBy", "name phone")
+        .populate("verifiedBy", "name department")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      FloodReport.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalReports / limit);
+
+    res.status(200).json({
+      pagination: {
+        totalReports,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      reports,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

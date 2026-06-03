@@ -135,8 +135,29 @@ export const createSegment = async (req, res) => {
 
 export const getAllSegments = async (req, res) => {
   try {
-    const segments = await Segment.find({}).populate("floodReport");
-    return res.status(200).json({ message: "OK", segments });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    const skip = (page - 1) * limit;
+
+    const [segments, totalSegments] = await Promise.all([
+      Segment.find({}).populate("floodReport").skip(skip).limit(limit),
+      Segment.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalSegments / limit);
+
+    return res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalSegments,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      segments,
+    });
   } catch (err) {
     res.status(500).json({ code: 500, message: "Internal Server Error" });
   }
