@@ -36,6 +36,103 @@ export const createAdminOrRescuerAccount = async (req, res) => {
   }
 };
 
+export const deleteUserById = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "User ID is required in the query." });
+  }
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: "User deleted successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
+
+export const deleteAdminById = async (req, res) => {
+  try {
+    const user = await Admin.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: "User deleted successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
+
+export const editAdminById = async (req, res) => {
+  const { id } = req.query;
+  const { name, email, password, role } = req.body;
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "Admin ID is required in the query." });
+  }
+
+  try {
+    const admin = await Admin.findById(id);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found." });
+    }
+
+    // Check if email is taken by another admin
+    if (email && email !== admin.email) {
+      const emailExists = await Admin.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Email already in use." });
+      }
+    }
+
+    if (name) admin.name = name;
+    if (email) admin.email = email;
+    if (password) admin.password = password;
+    if (role) admin.role = role;
+
+    await admin.save();
+
+    res.status(200).json({
+      message: "Admin updated successfully.",
+      user: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
+
+
 export const getAllAdmin = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -119,7 +216,7 @@ export const toggleAllUsersSos = async (req, res) => {
       "users",
       `SOS ${newValue ? "Enabled" : "Disabled"}`,
       `SOS has been ${newValue ? "enabled" : "disabled"} for all residents.`,
-      { isSosEnabled: String(newValue), type: "sos_toggle" }
+      { isSosEnabled: String(newValue), type: "sos_toggle" },
     );
 
     res.status(200).json({
@@ -131,7 +228,6 @@ export const toggleAllUsersSos = async (req, res) => {
   }
 };
 
-
 export const getSosAvailability = async (req, res) => {
   try {
     const total = await User.countDocuments({ role: "user" });
@@ -140,7 +236,10 @@ export const getSosAvailability = async (req, res) => {
       return res.status(404).json({ message: "No users found" });
     }
 
-    const enabledCount = await User.countDocuments({ role: "user", isSosEnabled: true });
+    const enabledCount = await User.countDocuments({
+      role: "user",
+      isSosEnabled: true,
+    });
 
     // true only if ALL users have it enabled
     const isSosEnabled = enabledCount === total;
@@ -163,6 +262,8 @@ export const updateFcmToken = async (req, res) => {
     await User.findByIdAndUpdate(userId, { fcmToken });
     return res.status(200).json({ message: "FCM token updated" });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to update FCM token", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Failed to update FCM token", error: err.message });
   }
 };

@@ -172,3 +172,28 @@ export const sendAnnouncement = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const deleteSingleAnnouncement = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ message: "Announcement ID is required in the query." });
+  }
+
+  try {
+    const announcement = await Notification.findOneAndDelete({
+      _id: id,
+      type: "announcement",
+    });
+
+    if (!announcement) {
+      return res.status(404).json({ message: "Announcement not found." });
+    }
+
+    return res.status(200).json({ message: "Announcement deleted successfully." });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
+
+

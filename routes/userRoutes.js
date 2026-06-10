@@ -1,6 +1,9 @@
 import { Router } from "express";
 import {
   createAdminOrRescuerAccount,
+  deleteAdminById,
+  deleteUserById,
+  editAdminById,
   getAllAdmin,
   getAllUsers,
   getSosAvailability,
@@ -18,5 +21,8 @@ router.get("/all/admin", protect, adminOnly, getAllAdmin)
 router.patch("/toggleSOS", protect , adminOnly, toggleAllUsersSos)
 router.get("/all/getSosAvailability", protect, getSosAvailability)
 router.patch("/fcmToken", protect, updateFcmToken)
+router.delete("/deleteUserById", protect, adminOnly,deleteUserById)
+router.put("/editAdminById", protect, adminOnly,editAdminById)
+router.delete("/deleteAdminById", protect, adminOnly, deleteAdminById)
 
 export default router;
