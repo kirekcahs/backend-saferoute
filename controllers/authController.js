@@ -2,11 +2,14 @@ import User from "../models/User.js";
 import Admin from "../models/Admin.js";
 import { createToken } from "../helpers/jwt.js";
 import cookieOptions from "../helpers/cookieOptions.js";
+import { isValidPhone, toE164 } from "../helpers/phone.js";
 
 // REGISTER (residents only)
 export const register = async (req, res) => {
   const { age, phone, password, isPWD } = req.body;
-
+  if (!phone || !isValidPhone(phone))
+  return res.status(400).json({ message: "Invalid phone number format" });
+  const normalized = toE164(phone);
   try {
     // Check if user already exists
     const existing = await User.findOne({ phone });
@@ -19,7 +22,7 @@ export const register = async (req, res) => {
     // Create user
     const user = await User.create({
       age,
-      phone,
+      phone: normalized,
       password,
       isPWD,
     });

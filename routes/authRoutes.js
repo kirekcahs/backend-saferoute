@@ -7,6 +7,7 @@ import {
   updateFcmToken,
   registerAdminOrRescuer,
 } from "../controllers/authController.js";
+import { forgotPassword, verifyResetOtp, resetPassword } from "../controllers/passwordResetController.js"
 import protect from "../middleware/verifyToken.js";
 
 const router = Router();
@@ -17,5 +18,7 @@ router.post("/logout", protect, logout);
 router.get("/me", protect, getMe);
 router.patch("/fcm-token", protect, updateFcmToken);
 router.post("/register-admin", registerAdminOrRescuer);
-
+router.post("/forgot-password", forgotPassword);   
+router.post("/verify-otp", verifyResetOtp);       
+router.post("/reset-password", resetPassword);     
 export default router;
