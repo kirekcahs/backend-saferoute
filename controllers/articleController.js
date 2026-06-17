@@ -1,4 +1,5 @@
 import Article from "../models/Article.js";
+import { bucket } from "../config/gcs.js";
 
 export const getAllArticles = async (req, res) => {
   try {
@@ -31,26 +32,64 @@ export const getAllArticles = async (req, res) => {
 };
 
 export const createArticle = async (req, res) => {
-  try {
-    const { title, photoUrl, description, sourceLink } = req.body;
-    const newArticle = await Article.create({
-      title,
-      photoUrl,
-      description,
-      sourceLink,
-    });
+  // 1. Extract exactly what your schema expects from the request body
+  const { title, description, sourceLink } = req.body || {};
 
-    res.status(201).json({
-      message: "Article added successfully.",
-      article: newArticle,
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Internal Server Error",
+  // 2. Validate the required fields based on your schema
+  if (!title || !description || !req.file) {
+    return res.status(400).json({
+      error: "Data missing. Ensure title, description, and an image are provided.",
     });
   }
-};
 
+  try {
+    // 3. Setup the file metadata for GCS
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const fileName = `articles/${Date.now()}_${safeName}`; 
+    const blob = bucket.file(fileName);
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      metadata: { contentType: req.file.mimetype },
+    });
+
+    // 4. Handle upload errors
+    blobStream.on("error", (err) => {
+      return res.status(500).json({ error: err.message });
+    });
+
+    // 5. Execute when the upload successfully finishes
+    blobStream.on("finish", async () => {
+      // Generate the public Firebase Storage URL
+      const encodedFileName = encodeURIComponent(blob.name);
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedFileName}?alt=media`;
+
+      try {
+        // Create the Article using your exact schema fields
+        const article = await Article.create({
+          title,
+          description,
+          sourceLink: sourceLink || null, // Optional field
+          photoUrl: publicUrl, // Matches your schema's photoUrl field
+        });
+
+        // Send success response
+        return res.status(201).json({
+          message: "Article created successfully",
+          article,
+        });
+      } catch (dbError) {
+        // Catch any Mongoose validation errors
+        return res.status(500).json({ error: dbError.message });
+      }
+    });
+
+    // 6. Start the upload
+    blobStream.end(req.file.buffer);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
 export const deleteSingleArticle = async (req, res) => {
   const { id } = req.query;
 
