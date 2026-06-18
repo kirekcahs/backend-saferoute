@@ -134,23 +134,24 @@ export const editAdminById = async (req, res) => {
 };
 
 
-export const getAllAdmin = async (req, res) => {
+export const getAllAdminByRole = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 8;
     const skip = (page - 1) * limit;
+    const { role } = req.query;
 
-    const [admins, totalAdmins] = await Promise.all([
-      Admin.find({ role: "admin" }).skip(skip).limit(limit),
-      Admin.countDocuments({ role: "admin" }),
+    const [admins, totalAdminsOrRescuers] = await Promise.all([
+      Admin.find({ role: role }).skip(skip).limit(limit),
+      Admin.countDocuments({ role: role }),
     ]);
 
-    const totalPages = Math.ceil(totalAdmins / limit);
+    const totalPages = Math.ceil(totalAdminsOrRescuers / limit);
 
     res.status(200).json({
       message: "OK",
       pagination: {
-        totalAdmins,
+        totalAdminsOrRescuers,
         totalPages,
         currentPage: page,
         limit,
@@ -269,32 +270,3 @@ export const updateFcmToken = async (req, res) => {
   }
 };
 
-export const getAllRescuer = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 8;
-    const skip = (page - 1) * limit;
-
-    const [rescuers, totalRescuers] = await Promise.all([
-      Admin.find({ role: "rescuer" }).skip(skip).limit(limit),
-      Admin.countDocuments({ role: "rescuer" }),
-    ]);
-
-    const totalPages = Math.ceil(totalRescuers / limit);
-
-    res.status(200).json({
-      message: "OK",
-      pagination: {
-        totalRescuers,
-        totalPages,
-        currentPage: page,
-        limit,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
-      rescuers,
-    });
-  } catch (err) {
-    res.status(500).json({ code: 500, message: "Internal Server Error" });
-  }
-};
