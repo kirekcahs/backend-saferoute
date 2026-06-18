@@ -1,7 +1,7 @@
 import FloodReport from "../models/FloodReport.js";
 import { sendToTopic } from "../helpers/fcmService.js";
 import { bucket } from "../config/gcs.js";
-// import { broadcast } from "../helpers/websocket.js";
+import { broadcast } from "../helpers/websocket.js";
 
 // USER SUBMITS FLOOD REPORT
 export const submitReport = async (req, res) => {
@@ -124,14 +124,26 @@ export const getVerifiedReports = async (req, res) => {
 // ADMIN VERIFIES OR REJECTS A FLOOD REPORT
 export const verifyReport = async (req, res) => {
   const { id } = req.query;
-  const { action } = req.body; // 'verify' or 'reject'
-  const adminId = req.user.userId;
+  const { action } = req.body; 
+  const adminId = req.user?.userId;
+
+  // 1. Input Validation
+  if (!id) {
+    return res.status(400).json({ message: "Report ID is required." });
+  }
+
+  const allowedActions = ["verify", "reject"];
+  if (!allowedActions.includes(action)) {
+    return res.status(400).json({ 
+      message: `Invalid action. Allowed actions are: ${allowedActions.join(", ")}` 
+    });
+  }
 
   try {
     const report = await FloodReport.findById(id);
 
     if (!report) {
-      return res.status(404).json({ message: "Flood report not found" });
+      return res.status(404).json({ message: "Flood report not found." });
     }
 
     if (action === "verify") {
@@ -142,34 +154,48 @@ export const verifyReport = async (req, res) => {
 
       await report.save();
 
-      // Broadcast verified flood report to all users
+
       await sendToTopic(
         "flood_alerts_tinajeros",
-        " Flood Area Updated",
+        "Flood Area Updated",
         `Flood reported at ${report.floodDepth} depth — check the map`,
         {
           reportId: report._id.toString(),
-          longitude: report.coords[0].toString(),
-          latitude: report.coords[1].toString(),
+          latitude: report.coords[0].toString(),  
+          longitude: report.coords[1].toString(), 
           floodDepth: report.floodDepth,
           type: "flood_report_verified",
         },
       );
 
-      broadcast({ type: "flood_report_verified", data: report });
+      const populatedReport = await FloodReport.findById(report._id)
+        .populate("reportedBy")
+        .populate("verifiedBy");
+
+      broadcast({ type: "flood_report_verified", data: populatedReport });
+
+      return res.status(200).json({
+        message: "Flood report verified successfully",
+        report: populatedReport,
+      });
+
     } else if (action === "reject") {
       report.status = "rejected";
       await report.save();
 
+      const populatedReport = await FloodReport.findById(report._id)
+        .populate("reportedBy");
+
       broadcast({ type: "flood_report_rejected", data: { id: report._id } });
+
+      return res.status(200).json({
+        message: "Flood report rejected successfully",
+        report: populatedReport,
+      });
     }
 
-    res.status(200).json({
-      message: `Flood report ${action === "verify" ? "verified" : "rejected"} successfully`,
-      report,
-    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 };
 
