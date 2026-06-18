@@ -52,9 +52,14 @@ export const getAllSOS = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const { status } = req.query
+
+
+    const matchStage = { isActive: true };
+    if (status) matchStage.status = status;
 
     const [result] = await SosAlert.aggregate([
-      { $match: { isActive: true } },
+      { $match: matchStage },
       {
         $addFields: {
           statusOrder: {
