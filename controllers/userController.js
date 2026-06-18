@@ -165,6 +165,38 @@ export const getAllAdminByRole = async (req, res) => {
   }
 };
 
+export const getAllAdminAndRescuers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
+
+    const [results, total] = await Promise.all([
+      Admin.find({ role: { $in: ["admin", "rescuer"] } })
+        .skip(skip)
+        .limit(limit),
+      Admin.countDocuments({ role: { $in: ["admin", "rescuer"] } }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      data: results,
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: "Internal Server Error" });
+  }
+};
+
 export const getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

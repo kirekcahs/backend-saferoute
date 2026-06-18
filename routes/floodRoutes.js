@@ -1,13 +1,15 @@
 import { Router } from "express";
-import protect, { adminOnly } from "../middleware/verifyToken.js";
+import protect, { adminOnly, adminOrRescuer } from "../middleware/verifyToken.js";
 import {
   submitReport,
   getAllReports,
   getVerifiedReports,
   verifyReport,
   deleteSingleFloodReport,
+  getAllReportsByStatus,
 } from "../controllers/floodController.js";
 import multer from "multer";
+import admin from "../config/firebase.js";
 const router = Router();
 
 const upload = multer({
@@ -16,7 +18,8 @@ const upload = multer({
 });
 
 router.post("/report", protect, upload.single("image"), submitReport);
-router.get("/reports", protect, getAllReports);
+router.get("/reports", protect, adminOrRescuer, getAllReports);
+router.get("/getReportsByStatus", protect, adminOrRescuer, getAllReportsByStatus)
 router.get("/reports/verified", protect, getVerifiedReports);
 router.patch("/verifyReports", protect, adminOnly, verifyReport);
 router.delete(

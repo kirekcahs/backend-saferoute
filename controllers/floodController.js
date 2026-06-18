@@ -173,6 +173,53 @@ export const verifyReport = async (req, res) => {
   }
 };
 
+export const getAllReportsByStatus = async (req, res) => {
+  const { status } = req.query;
+
+  if (!status) {
+    return res.status(400).json({ message: "Status query parameter is required." });
+  }
+
+ 
+  const allowedStatuses = ["pending", "verified", "rejected"];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status." });
+  }
+
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const [reports, totalReports] = await Promise.all([
+      FloodReport.find({ status })
+        .populate("reportedBy") 
+        .populate("verifiedBy") 
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      FloodReport.countDocuments({ status }),
+    ]);
+
+    const totalPages = Math.ceil(totalReports / limit);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalReports,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      reports,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};
+
 export const deleteSingleFloodReport = async (req, res) => {
   const { id } = req.query;
 

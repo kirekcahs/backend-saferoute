@@ -4,6 +4,7 @@ import {
   deleteAdminById,
   deleteUserById,
   editAdminById,
+  getAllAdminAndRescuers,
   getAllAdminByRole,
   getAllUsers,
   getSosAvailability,
@@ -17,13 +18,15 @@ const router = Router();
 
 router.post("/createAdminAccount", protect, adminOnly, createAdminOrRescuerAccount);
 router.get("/all", protect, adminOnly, getAllUsers);
-router.get("/all/admin", protect, adminOnly, getAllAdminByRole)
+router.get("/all/admin", protect, adminOnly, getAllAdminAndRescuers)
+router.get("/getAdminByRole", protect, adminOnly, getAllAdminByRole)
 router.patch("/toggleSOS", protect , adminOnly, toggleAllUsersSos)
 router.get("/all/getSosAvailability", protect, getSosAvailability)
 router.patch("/fcmToken", protect, updateFcmToken)
 router.delete("/deleteUserById", protect, adminOnly,deleteUserById)
 router.put("/editAdminById", protect, adminOnly,editAdminById)
 router.delete("/deleteAdminById", protect, adminOnly, deleteAdminById)
+
 
 
 export default router;

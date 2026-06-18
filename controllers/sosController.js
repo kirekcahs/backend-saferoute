@@ -52,14 +52,9 @@ export const getAllSOS = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { status } = req.query
-
-
-    const matchStage = { isActive: true };
-    if (status) matchStage.status = status;
 
     const [result] = await SosAlert.aggregate([
-      { $match: matchStage },
+      { $match: { isActive: true } },
       {
         $addFields: {
           statusOrder: {
@@ -228,15 +223,63 @@ export const updateSOSStatus = async (req, res) => {
 export const getSOSByStatus = async (req, res) => {
   const { status } = req.query;
 
-  try {
-    const alerts = await SosAlert.find({ status })
-      .populate("userId", "name phone age healthStatus isPWD")
-      .populate("rescuerId", "name phone")
-      .sort({ createdAt: -1 });
+  // 1. Validate status existence
+  if (!status) {
+    return res.status(400).json({ message: "Status query parameter is required." });
+  }
 
-    res.status(200).json({ alerts });
+  // 2. Validate against allowed enums
+  const allowedStatuses = ["pending", "dispatched", "responded", "resolved", "cancelled"];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      message: `Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`,
+    });
+  }
+
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 8);
+    const skip = (page - 1) * limit;
+
+    // 3. Aggregate instead of find()
+    const [result] = await SosAlert.aggregate([
+      // Match both the specific status and isActive
+      { $match: { status: status, isActive: true } }, 
+      // Sort newest first
+      { $sort: { createdAt: -1 } }, 
+      // Facet for pagination and counting in a single trip
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          alerts: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+    ]);
+
+    // Extract total count safely
+    const totalAlerts = result.total[0]?.count || 0;
+    const totalPages = Math.ceil(totalAlerts / limit) || 1; // Fallback to 1 if empty
+
+    // 4. Re-populate after aggregation to get ALL user/rescuer properties
+    const alerts = await SosAlert.populate(result.alerts, [
+      { path: "userId", select: "name phone age healthStatus isPWD" },
+      { path: "rescuerId", select: "name phone" },
+    ]);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalAlerts,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      alerts,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 };
 
