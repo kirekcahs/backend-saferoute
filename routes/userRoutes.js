@@ -5,6 +5,7 @@ import {
   deleteUserById,
   editAdminById,
   getAllAdmin,
+  getAllRescuer,
   getAllUsers,
   getSosAvailability,
   toggleAllUsersSos,
@@ -24,5 +25,6 @@ router.patch("/fcmToken", protect, updateFcmToken)
 router.delete("/deleteUserById", protect, adminOnly,deleteUserById)
 router.put("/editAdminById", protect, adminOnly,editAdminById)
 router.delete("/deleteAdminById", protect, adminOnly, deleteAdminById)
+router.get("/all/rescuer", protect, adminOnly, getAllRescuer)
 
 export default router;
