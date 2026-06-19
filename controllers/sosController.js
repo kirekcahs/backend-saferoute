@@ -283,6 +283,60 @@ export const getSOSByStatus = async (req, res) => {
   }
 };
 
+
+// GET SOS ALERTS BY DEPTH (CONDITION)
+export const getSosByDepth = async (req, res) => {
+  const { depth } = req.query;
+  const allowedDepths = ["ankle-deep", "knee-deep", "chest-deep", "critical"];
+  if (!allowedDepths.includes(depth)) {
+    return res.status(400).json({
+      message: `Invalid depth condition. Allowed values are: ${allowedDepths.join(", ")}`,
+    });
+  }
+
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+
+    const [result] = await SosAlert.aggregate([
+      { $match: { condition: depth, isActive: true } }, 
+      { $sort: { createdAt: -1 } }, // Sort newest alerts first
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          alerts: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+    ]);
+
+
+    const totalAlerts = result.total[0]?.count || 0;
+    const totalPages = Math.ceil(totalAlerts / limit) || 1;
+
+    const alerts = await SosAlert.populate(result.alerts, [
+      { path: "userId", select: "name phone age healthStatus isPWD" },
+      { path: "rescuerId", select: "name phone" },
+    ]);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalAlerts,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      alerts,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};
+
 export const deleteSOS = async (req, res) => {
   const { id } = req.query;
 

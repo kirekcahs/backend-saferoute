@@ -11,6 +11,7 @@ import {
   getSOSByStatus,
   deleteSOS,
   getSOSbyId,
+  getSosByDepth,
 } from "../controllers/sosController.js";
 
 const router = Router();
@@ -22,4 +23,5 @@ router.get("/singleSOS", protect, adminOrRescuer, getSingleSOS);
 router.patch("/updateStatus", protect, adminOrRescuer, updateSOSStatus);
 router.patch("/deleteSOS", protect, adminOnly, deleteSOS);
 router.get("/getSOSbyId", protect, getSOSbyId);
+router.get("/getSOSbyDepth", protect, adminOrRescuer, getSosByDepth)
 export default router;

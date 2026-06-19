@@ -7,6 +7,7 @@ import {
   verifyReport,
   deleteSingleFloodReport,
   getAllReportsByStatus,
+  getReportsByDepth,
 } from "../controllers/floodController.js";
 import multer from "multer";
 import admin from "../config/firebase.js";
@@ -20,6 +21,7 @@ const upload = multer({
 router.post("/report", protect, upload.single("image"), submitReport);
 router.get("/reports", protect, adminOrRescuer, getAllReports);
 router.get("/getReportsByStatus", protect, adminOrRescuer, getAllReportsByStatus)
+router.get("/getReportsByDepth", protect, adminOrRescuer, getReportsByDepth)
 router.get("/reports/verified", protect, getVerifiedReports);
 router.patch("/verifyReports", protect, adminOnly, verifyReport);
 router.delete(

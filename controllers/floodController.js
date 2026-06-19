@@ -199,6 +199,57 @@ export const verifyReport = async (req, res) => {
   }
 };
 
+export const getReportsByDepth = async (req, res) => {
+  const { depth } = req.query;
+  
+  const allowedDepths = ["ankle-deep", "knee-deep", "chest-deep", "critical"];
+  if (!allowedDepths.includes(depth)) {
+    return res.status(400).json({
+      message: `Invalid depth condition. Allowed values are: ${allowedDepths.join(", ")}`,
+    });
+  }
+
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const [result] = await FloodReport.aggregate([
+      { $match: { floodDepth: depth } }, 
+      { $sort: { createdAt: -1 } }, 
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          reports: [{ $skip: skip }, { $limit: limit }], 
+        },
+      },
+    ]);
+
+    const totalReports = result.total[0]?.count || 0;
+    const totalPages = Math.ceil(totalReports / limit) || 1;
+
+    const reports = await FloodReport.populate(result.reports, [
+      { path: "reportedBy", select: "name phone" },
+      { path: "verifiedBy", select: "name role" },
+    ]);
+
+    res.status(200).json({
+      message: "OK",
+      pagination: {
+        totalReports,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      reports, 
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};
+
 export const getAllReportsByStatus = async (req, res) => {
   const { status } = req.query;
 
