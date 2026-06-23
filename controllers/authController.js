@@ -18,7 +18,9 @@ export const register = async (req, res) => {
         .status(400)
         .json({ message: "Phone number already registered" });
     }
-
+    if (age < 18 && age > 59){
+      return res.status(400).json({message: "Age is not allowed. Only user with 18-59 years of age can use the application."})
+    }
     // Create user
     const user = await User.create({
       age,
