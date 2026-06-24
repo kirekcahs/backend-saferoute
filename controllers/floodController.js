@@ -163,14 +163,7 @@ export const verifyReport = async (req, res) => {
         );
       }
 
-      if (reporterFcmToken) {
-        await sendToUser(
-          reporterFcmToken,
-          "Flood Report Rejected ❌",
-          `Your flood report at ${report.streetName || "your location"} could not be verified and has been rejected.`,
-          { reportId: report._id.toString(), type: "flood_report_rejected" },
-        );
-      }
+
       await sendToTopic(
         "flood_alerts_tinajeros",
         "Flood Area Updated",
@@ -198,6 +191,15 @@ export const verifyReport = async (req, res) => {
     } else if (action === "reject") {
       report.status = "rejected";
       await report.save();
+
+        if (reporterFcmToken) {
+        await sendToUser(
+          reporterFcmToken,
+          "Flood Report Rejected ❌",
+          `Your flood report at ${report.streetName || "your location"} could not be verified and has been rejected.`,
+          { reportId: report._id.toString(), type: "flood_report_rejected" },
+        );
+      }
 
       const populatedReport = await FloodReport.findById(report._id)
         .populate("reportedBy");
