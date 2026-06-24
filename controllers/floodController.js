@@ -1,5 +1,5 @@
 import FloodReport from "../models/FloodReport.js";
-import { sendToTopic } from "../helpers/fcmService.js";
+import { sendToTopic, sendToUser } from "../helpers/fcmService.js";
 import { bucket } from "../config/gcs.js";
 import { broadcast } from "../helpers/websocket.js";
 
@@ -140,8 +140,8 @@ export const verifyReport = async (req, res) => {
   }
 
   try {
-    const report = await FloodReport.findById(id);
-
+    const report = await FloodReport.findById(id).populate("reportedBy");
+    const reporterFcmToken = report.reportedBy?.fcmToken ?? null;
     if (!report) {
       return res.status(404).json({ message: "Flood report not found." });
     }
@@ -154,7 +154,23 @@ export const verifyReport = async (req, res) => {
 
       await report.save();
 
+      if (reporterFcmToken) {
+        await sendToUser(
+          reporterFcmToken,
+          "Flood Report Verified ✅",
+          `Your flood report at ${report.streetName || "your location"} has been verified by an admin.`,
+          { reportId: report._id.toString(), type: "flood_report_verified" },
+        );
+      }
 
+      if (reporterFcmToken) {
+        await sendToUser(
+          reporterFcmToken,
+          "Flood Report Rejected ❌",
+          `Your flood report at ${report.streetName || "your location"} could not be verified and has been rejected.`,
+          { reportId: report._id.toString(), type: "flood_report_rejected" },
+        );
+      }
       await sendToTopic(
         "flood_alerts_tinajeros",
         "Flood Area Updated",
