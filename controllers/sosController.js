@@ -9,7 +9,9 @@ import Admin from "../models/Admin.js";
 export const sendSOS = async (req, res) => {
   const { coords, numberOfPersons, streetName, condition } = req.body;
   const userId = req.user.userId;
-
+  if (!numberOfPersons || !streetName || !condition){
+    return res.status(400).json({message:"Input incomplete. Please complete the inputs."})
+  }
   try {
     // Create SOS alert in MongoDB
     const sos = await SosAlert.create({
