@@ -129,7 +129,7 @@ export const getSingleSOS = async (req, res) => {
 export const updateSOSStatus = async (req, res) => {
   const { id } = req.query;
   const { status, rescuerId, rescuerCoords, coords } = req.body;
-
+  const TERMINAL_STATUSES = ["resolved", "cancelled"];
   try {
     const sos = await SosAlert.findById(id).populate(
       "userId",
@@ -138,6 +138,19 @@ export const updateSOSStatus = async (req, res) => {
 
     if (!sos) {
       return res.status(404).json({ message: "SOS alert not found" });
+    }
+
+    if (TERMINAL_STATUSES.includes(sos.status)) {
+      return res.status(400).json({
+        message: `SOS is already ${sos.status}. No further updates allowed.`,
+      });
+    }
+
+    if (sos.status === status) {
+      return res.status(200).json({
+        message: `SOS is already in status: ${status}`,
+        sos,
+      });
     }
 
     // Only demand rescuerCoords if the status is "dispatched"
